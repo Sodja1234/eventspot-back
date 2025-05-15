@@ -9,4 +9,5 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::apiResource('evenements', EventController::class);
 Route::apiResource('categories', CategoryController::class);

@@ -11,13 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // database/migrations/xxxx_create_users_table.php
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('fullname');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->enum('role', ['organisateur', 'public'])->default('public');
             $table->rememberToken();
+            $table->timestamps();
+        });
+
+        Schema::create('organisateurs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('nom_organis');
             $table->timestamps();
         });
 

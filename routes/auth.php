@@ -1,20 +1,22 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\ApiAuthController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Auth\SocialiteController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [RegisteredUserController::class, 'store'])
     ->middleware('guest')
     ->name('register');
 
-Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-    ->middleware('guest')
-    ->name('login');
+// Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+//     ->middleware('guest')
+//     ->name('login');
 
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
     ->middleware('guest')
@@ -25,7 +27,8 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])
     ->name('password.store');
 
 Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
-    ->middleware(['auth', 'signed', 'throttle:6,1'])
+   ->middleware(['auth','signed', 'throttle:6,1'])
+    //->middleware(['signed'])
     ->name('verification.verify');
 
 Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
@@ -35,3 +38,16 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
+Route::post('login', [ApiAuthController::class, 'login']);
+Route::post('api/logout', [ApiAuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::get('/login', [ApiAuthController::class, 'login'])->name('login');
+    
+
+
+// routes/auth.php
+// Socialite routes
+Route::get('/auth/{provider}/redirect', [SocialiteController::class, 'redirect'])
+    ->name('socialite.redirect');
+
+Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback'])
+    ->name('socialite.callback');

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\EventController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -16,5 +18,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Ajoutez ici vos autres routes protégées
 });
 Route::post('/lllogin', [AuthenticatedSessionController::class, 'store']);
+
+
+
+
+
+
+Route::apiResource('evenements', EventController::class);
+Route::apiResource('categories', CategoryController::class);
 
 require __DIR__.'/auth.php';

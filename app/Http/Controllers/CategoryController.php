@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,7 +15,13 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $category=CategoryResource::collection(Category::all());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Données récupérée avec succes',
+            'data' =>$category
+        ]);
     }
 
     /**

@@ -11,3 +11,4 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::apiResource('evenements', EventController::class);
 Route::apiResource('categories', CategoryController::class);
+Route::get('/search', [EventController::class, 'index']);

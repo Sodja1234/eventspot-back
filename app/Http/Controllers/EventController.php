@@ -57,7 +57,7 @@ class EventController extends Controller
             'tickets.*.name' => 'required|string|max:255',
             'tickets.*.price' => 'required|numeric|min:10',
             'tickets.*.places' => 'required|integer|min:1',
-            'description' => 'required|string|max:100',
+            'tickets.*.description' => 'required|string|max:100',
             // 'url'=>'required|file|mimes:mp4,mp3,jpeg,png,jpg'
         ]);
 

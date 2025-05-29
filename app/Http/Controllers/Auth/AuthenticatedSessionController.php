@@ -7,20 +7,23 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): Response
-    {
-        $request->authenticate();
+    public function store(Request $request): Response
+{
+    $request->authenticate(); 
+    
+  
+    $request->session()->regenerate();
 
-        $request->session()->regenerate();
+    return response()->noContent();
+}
 
-        return response()->noContent();
-    }
 
     /**
      * Destroy an authenticated session.

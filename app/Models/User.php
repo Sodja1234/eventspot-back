@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Interets; // Ensure the Interet class exists in the App\Models namespace
+use App\Models\Interet; // Ensure the Interet class exists in the App\Models namespace
 use Illuminate\Auth\Notifications\ResetPassword;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -49,9 +49,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     
    
-    public function interets()
+    public function interet()
     {
-        return $this->belongsToMany(Interets::class);
+        return $this->belongsToMany(Interet::class);
     }
 
     public function isOrganisateur()
@@ -85,18 +85,10 @@ class User extends Authenticatable implements MustVerifyEmail
         ])->save();
     }
 
-    // public function sendEmailVerificationNotification()
-    // {
-    //     $this->notify(new \Illuminate\Auth\Notifications\VerifyEmail);
-    // }
-    //  public function sendPasswordResetNotification($token)
-    // {
-    //     $url = config('app.frontend_url').'/reset-password?token='.$token.'&email='.$this->email;
-        
-    //     $this->notify(new ResetPassword($url));
-    // }
+  
 public function sendPasswordResetNotification($token)
 {
+    // $url = config('app.frontend_url').'/reset-password?token='.$token.'&email='.urlencode($this->email);
     $url = config('app.frontend_url').'/reset-password?token='.$token.'&email='.urlencode($this->email);
     
     $this->notify(new ResetPassword($url));

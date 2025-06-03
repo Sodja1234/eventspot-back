@@ -19,6 +19,9 @@ class Event extends Model
     'created_by',
     'date_time_start',
     'date_time_end',
+    'address',
+    'latitude',
+    'longitude'
 ];
 
     public function user()

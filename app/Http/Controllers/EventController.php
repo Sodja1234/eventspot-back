@@ -44,22 +44,41 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
+        // $validator = Validator::make($request->all(), [
+        //     'title' => 'required|string|max:255|unique:events',
+        //     'description' => 'required|string|max:500',
+        //     'cycle' => 'nullable|string|max:100',
+        //     'created_by' => 'required|exists:users,id',
+        //     'date_time_start' => 'required|date|after_or_equal:today',
+        //     'date_time_end' => 'required|date|after_or_equal:date_time_start',
+        //     'category_ids' => 'required|array',
+        //     'category_ids.*' => 'exists:categories,id',
+        //     'tickets' => 'nullable|array|min:1',
+        //     'tickets.*.name' => 'required|string|max:255',
+        //     'tickets.*.price' => 'required|numeric|min:10',
+        //     'tickets.*.places' => 'required|integer|min:1',
+        //     'tickets.*.description' => 'required|string|max:100',
+        //     // 'url'=>'required|file|mimes:mp4,mp3,jpeg,png,jpg'
+        // ]);
+
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255|unique:events',
-            'description' => 'required|string|max:500',
-            'cycle' => 'nullable|string|max:100',
-            'created_by' => 'required|exists:users,id',
-            'date_time_start' => 'required|date|after_or_equal:today',
-            'date_time_end' => 'required|date|after_or_equal:date_time_start',
-            'category_ids' => 'required|array',
-            'category_ids.*' => 'exists:categories,id',
-            'tickets' => 'nullable|array|min:1',
-            'tickets.*.name' => 'required|string|max:255',
-            'tickets.*.price' => 'required|numeric|min:10',
-            'tickets.*.places' => 'required|integer|min:1',
-            'tickets.*.description' => 'required|string|max:100',
-            // 'url'=>'required|file|mimes:mp4,mp3,jpeg,png,jpg'
-        ]);
+        'title' => 'required|string|max:255|unique:events',
+        'description' => 'required|string|max:500',
+        'cycle' => 'nullable|string|max:100',
+        'created_by' => 'required|exists:users,id',
+        'date_time_start' => 'required|date|after_or_equal:today',
+        'date_time_end' => 'required|date|after_or_equal:date_time_start',
+        'category_ids' => 'required|array',
+        'category_ids.*' => 'exists:categories,id',
+        'address' => 'required|string|max:255',
+        'latitude' => ['required', 'numeric', 'between:-90,90'],
+        'longitude' => ['required', 'numeric', 'between:-180,180'],
+        'tickets' => 'nullable|array|min:1',
+        'tickets.*.name' => 'required|string|max:255',
+        'tickets.*.price' => 'required|numeric|min:10',
+        'tickets.*.places' => 'required|integer|min:1',
+        'tickets.*.description' => 'required|string|max:100',
+]);
 
         if ($validator->fails()) {
             return response()->json([
@@ -81,12 +100,16 @@ class EventController extends Controller
         if ($request->has('tickets') && is_array($request->input('tickets'))) {
             foreach ($request->input('tickets') as $ticketData) {
                 $ticket = Ticket::create([
-                    'event_id' => $event->id,
-                    'name' => $ticketData['name'],
-                    'description' => $ticketData['description'],
-                    'price' => $ticketData['price'],
-                    'places' => $ticketData['places'],
-                    'reserved_places' => $reserved_places
+                    'title' => $request->title,
+                    'description' => $request->description,
+                    'cycle' => $request->cycle,
+                    'created_by' => $request->created_by,
+                    'date_time_start' => $request->date_time_start,
+                    'date_time_end' => $request->date_time_end,
+                    'address' => $request->address,         
+                    'latitude' => $request->latitude,        
+                    'longitude' => $request->longitude,
+                    
                 ]);
                 $createdTickets[] = $ticket->toArray();
             }

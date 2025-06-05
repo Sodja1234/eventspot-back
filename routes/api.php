@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -15,11 +16,25 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             'email_verified' => $request->user()->hasVerifiedEmail()
         ]);
     });
-    
+
     // Ajoutez ici vos autres routes protégées
 });
 
 Route::apiResource('evenements', EventController::class);
 Route::apiResource('categories', CategoryController::class);
-Route::get('/search', [EventController::class, 'index']);
+Route::prefix('/search')->group(
+    function () {
+        Route::get('', [EventController::class, 'index']);
+        Route::get('category/{name}', [CategoryController::class, 'index']);
+        Route::get('user/{name}', [UserController::class, 'index']);
+    }
+);
+Route::prefix('event')->group(
+    function () {
+        Route::get('/id/{id}', [EventController::class, 'show']);
+        Route::get('/three', [EventController::class, 'getLastThreeEvents']);
+    }
+);
+Route::get('category/{id}', [CategoryController::class, 'show']);
+Route::get('user/{id}', [UserController::class, 'show']);
 require __DIR__.'/auth.php';

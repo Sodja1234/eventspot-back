@@ -22,7 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'fullname',
+        'name',
         'email',
         'password',
         'role'
@@ -47,8 +47,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Organisateur::class);
     }
 
-    
-   
+
+
     public function interet()
     {
         return $this->belongsToMany(Interet::class);
@@ -85,12 +85,12 @@ class User extends Authenticatable implements MustVerifyEmail
         ])->save();
     }
 
-  
+
 public function sendPasswordResetNotification($token)
 {
     // $url = config('app.frontend_url').'/reset-password?token='.$token.'&email='.urlencode($this->email);
     $url = config('app.frontend_url').'/reset-password?token='.$token.'&email='.urlencode($this->email);
-    
+
     $this->notify(new ResetPassword($url));
 }
 

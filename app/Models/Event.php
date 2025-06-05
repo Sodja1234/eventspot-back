@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -38,4 +39,11 @@ class Event extends Model
     {
         return $this->belongsToMany(Category::class);
     }
+
+    public function medias()
+    {
+        return $this->HasMany(Media::class);
+    }
+    
+   
 }

@@ -24,6 +24,7 @@ Route::apiResource('categories', CategoryController::class);
 Route::prefix('/search')->group(
     function () {
         Route::get('', [EventController::class, 'index']);
+        Route::get('category/{name}', [CategoryController::class, 'index']);
     }
 );
 Route::prefix('event')->group(
@@ -32,4 +33,5 @@ Route::prefix('event')->group(
         Route::get('/three', [EventController::class, 'getLastThreeEvents']);
     }
 );
+Route::get('category/{id}', [CategoryController::class, 'show']);
 require __DIR__.'/auth.php';

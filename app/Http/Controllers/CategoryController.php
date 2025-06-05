@@ -59,7 +59,13 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $category = Category::find($id);
+        if (!$category) {
+            return response()->json([
+                'message' => 'Category Not Found'
+            ]);
+        }
+        return CategoryResource::make($category);
     }
 
     /**

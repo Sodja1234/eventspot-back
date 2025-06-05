@@ -15,11 +15,21 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             'email_verified' => $request->user()->hasVerifiedEmail()
         ]);
     });
-    
+
     // Ajoutez ici vos autres routes protégées
 });
 
 Route::apiResource('evenements', EventController::class);
 Route::apiResource('categories', CategoryController::class);
-Route::get('/search', [EventController::class, 'index']);
+Route::prefix('/search')->group(
+    function () {
+        Route::get('', [EventController::class, 'index']);
+    }
+);
+Route::prefix('event')->group(
+    function () {
+        Route::get('/id/{id}', [EventController::class, 'show']);
+        Route::get('/three', [EventController::class, 'getLastThreeEvents']);
+    }
+);
 require __DIR__.'/auth.php';

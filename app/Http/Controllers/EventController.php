@@ -15,7 +15,8 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Event::query(); 
+        $query = Event::query();
+        $per_page = $request->query('per_page', 20);
 
         $search = $request->query('search');
         if ($search) {
@@ -30,7 +31,7 @@ class EventController extends Controller
             $query->whereRaw('LOWER(cycle) LIKE ?', ['%' . $cycle . '%']);
         }
 
-        $events = $query->paginate(10);
+        $events = $query->paginate($per_page);
 
         if ($events->isEmpty()) {
             return response()->json(['message' => 'Event not found'], 404);
@@ -106,10 +107,10 @@ class EventController extends Controller
                     'created_by' => $request->created_by,
                     'date_time_start' => $request->date_time_start,
                     'date_time_end' => $request->date_time_end,
-                    'address' => $request->address,         
-                    'latitude' => $request->latitude,        
+                    'address' => $request->address,
+                    'latitude' => $request->latitude,
                     'longitude' => $request->longitude,
-                    
+
                 ]);
                 $createdTickets[] = $ticket->toArray();
             }
@@ -131,8 +132,13 @@ class EventController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $event = Event::find($id);
+        if (!$event) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+        return EventResource::make($event);
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -148,5 +154,12 @@ class EventController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function getLastThreeEvents()
+    {
+        $events = Event::orderBy('id', 'desc')
+            ->take(3)
+            ->get();
+        return EventResource::collection($events);
     }
 }

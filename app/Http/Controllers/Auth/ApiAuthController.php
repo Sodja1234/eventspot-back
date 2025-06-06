@@ -36,6 +36,12 @@ class ApiAuthController extends Controller
             $request->authenticate();
 
             $user = User::where('email', $request->email)->firstOrFail();
+            
+            if (is_null($user->email_verified_at)) {
+                return response()->json([
+                    'message' => 'Votre adresse e-mail n\'a pas encore été vérifiée.',
+                ], 403);
+            }
 
             $token = $user->createToken('token')->plainTextToken;
             $user['token'] = $token;

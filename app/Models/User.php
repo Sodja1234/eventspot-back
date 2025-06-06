@@ -23,6 +23,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
+        'name',
         'email',
         'password',
         'role'
@@ -46,6 +47,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Organisateur::class);
     }
+
+
 
 
 
@@ -84,6 +87,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => $this->freshTimestamp(),
         ])->save();
     }
+
 
 
 public function sendPasswordResetNotification($token)

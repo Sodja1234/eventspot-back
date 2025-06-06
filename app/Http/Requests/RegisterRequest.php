@@ -16,7 +16,7 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'fullname' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:public,organisateur',
@@ -29,7 +29,7 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'fullname.required' => 'Le nom complet est requis.',
+            'name.required' => 'Le nom complet est requis.',
             'email.required' => 'L’adresse e-mail est obligatoire.',
             'email.email' => 'L’adresse e-mail doit être valide.',
             'email.unique' => 'Cette adresse e-mail est déjà utilisée.',

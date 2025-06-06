@@ -5,14 +5,17 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use App\Models\Organisateur;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
@@ -21,25 +24,20 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): Response
-        {
-            $validated = $request->validate([
-                'fullname' => 'required|string',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|min:6|confirmed',
-                'role' => 'required|in:public,organisateur',
-                'nom_organis' => 'required_if:role,organisateur',
-                'interets' => 'array|required_if:role,public',
-                'interets.*' => 'exists:interets,id',
-            ]);
-        
+    public function store(RegisterRequest $request): JsonResponse
+
+
+    {
+        try {
+            $validated = $request->validated();
+
             $user = User::create([
-                'fullname' => $validated['fullname'],
+                'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => bcrypt($validated['password']),
                 'role' => $validated['role'],
             ]);
-        
+
             if ($user->role === 'organisateur') {
                 Organisateur::create([
                     'user_id' => $user->id,
@@ -48,9 +46,37 @@ class RegisteredUserController extends Controller
             } elseif ($user->role === 'public') {
                 $user->interets()->attach($validated['interets']);
             }
+
             $user->sendEmailVerificationNotification();
-            return response()->noContent();
+
+
+
+
+            //
+
+            // Génération OTP
+
+
+
+
+
+
+            //
+             return response()->json([
+                'message' => 'Inscription réussie. Veuillez vérifier votre adresse e-mail.',
+                'user' => $user
+            ], 201);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de l’inscription: ' . $e->getMessage());
+
+             return response()->json([
+                'message' => 'Une erreur s’est produite lors de l’inscription.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
 }
 
 

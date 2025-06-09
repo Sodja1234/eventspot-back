@@ -14,7 +14,7 @@ class VerifyEmailController extends Controller
 {
 
 
-    public function __invoke(Request $request, $id, $hash): JsonResponse
+       public function __invoke(Request $request, $id, $hash): RedirectResponse
 {
     Log::info("Vérification email commencée pour l'utilisateur ID: " . $id);
 
@@ -29,12 +29,14 @@ class VerifyEmailController extends Controller
 
     if (!hash_equals((string) $hash, sha1($user->email))) {
         Log::warning("Hash incorrect pour l'utilisateur ID: " . $user->id);
-        return response()->json(['status' => 'invalid-link'], 403);
+       // return response()->json(['status' => 'invalid-link'], 403);
+        return redirect()->away(config('app.frontend_url').'/login?verified=0');
     }
 
     if ($user->hasVerifiedEmail()) {
         Log::info("Email déjà vérifié pour l'utilisateur ID: " . $user->id);
-        return response()->json(['status' => 'verification-link-already']);
+       // return response()->json(['status' => 'verification-link-already']);
+       return redirect()->away(config('app.frontend_url').'/login?verified=1');
     }
 
     if ($user->markEmailAsVerified()) {
@@ -42,7 +44,8 @@ class VerifyEmailController extends Controller
         Log::info("Email vérifié avec succès pour l'utilisateur ID: " . $user->id);
     }
 
-    return response()->json(['status' => 'verification-link-success']);
+   // return response()->json(['status' => 'verification-link-success']);
+    return redirect()->away(config('app.frontend_url').'/login?verified=1');
 }
 
     /**

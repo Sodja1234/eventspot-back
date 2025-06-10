@@ -8,6 +8,8 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\SocialiteController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [RegisteredUserController::class, 'store'])
@@ -17,6 +19,12 @@ Route::post('/register', [RegisteredUserController::class, 'store'])
 // Route::post('/login', [AuthenticatedSessionController::class, 'store'])
 //     ->middleware('guest')
 //     ->name('login');
+
+Route::middleware('auth:sanctum')->prefix('dashboard')->group(function () {
+    Route::get('/organizer', [DashboardController::class, 'organizerDashboard']);
+    Route::get('/organizer/events/{filter?}', [DashboardController::class, 'organizerEvents']);
+    Route::get('/user/tickets', [TicketController::class, 'getUserTicket']);
+});
 
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
     ->middleware('guest')

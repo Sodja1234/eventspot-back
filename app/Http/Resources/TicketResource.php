@@ -22,6 +22,12 @@ class TicketResource extends JsonResource
             'places' => $this->places,
             'description' => $this->description,
             'reserved_places' => $this->reserved_places,
+            'status' => $this->reserved_places > 0 ? 'Confirmé' : 'Non vendu',
+            'event' => [
+                'id' => $this->event->id,
+                'title' => $this->event->title,
+                'date_time_start' => $this->event->date_time_start,
+            ],
         ];
     }
 }

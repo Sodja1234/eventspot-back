@@ -7,6 +7,7 @@ use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\EventResource;
+use App\Models\Media;
 
 class EventController extends Controller
 {
@@ -69,7 +70,7 @@ class EventController extends Controller
         'created_by' => 'required|exists:users,id',
         'date_time_start' => 'required|date|after_or_equal:today',
         'date_time_end' => 'required|date|after_or_equal:date_time_start',
-        'category_ids' => 'required|array',
+        'category_ids' => 'nullable|array',
         'category_ids.*' => 'exists:categories,id',
         'address' => 'required|string|max:255',
         'latitude' => ['required', 'numeric', 'between:-90,90'],
@@ -79,6 +80,7 @@ class EventController extends Controller
         'tickets.*.price' => 'required|numeric|min:10',
         'tickets.*.places' => 'required|integer|min:1',
         'tickets.*.description' => 'required|string|max:100',
+        'url' => 'nullable|file|mimes:jpg,jpeg,png,mp4|max:10240'
 ]);
 
         if ($validator->fails()) {
@@ -90,6 +92,12 @@ class EventController extends Controller
         }
 
         $event = Event::create($request->except('tickets'));
+        $path = $request->file('url')->store('url', 'public'); 
+
+        $media = Media::create([
+        'event_id' => $event->id,
+        'url' => 'storage/' . $path, 
+        ]);
 
         if ($request->has('category_ids') && is_array($request->category_ids)) {
             $event->categories()->attach($request->category_ids);
@@ -120,8 +128,9 @@ class EventController extends Controller
             'success' => true,
             'message' => 'Événement et billets créés avec succès',
             'data' => [
-                'event' => $event->toArray(),
-                'tickets' => $createdTickets,
+            'event' => $event->toArray(),
+            'tickets' => $createdTickets,
+            'url'=>$media
             ],
             201
         ]);

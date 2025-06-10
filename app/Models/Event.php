@@ -46,6 +46,13 @@ class Event extends Model
     }
     
 
+
+
+   
+
+
+    
+
     public function scopeForOrganisateur($query, $userId)
 {
     return $query->where('created_by', $userId);

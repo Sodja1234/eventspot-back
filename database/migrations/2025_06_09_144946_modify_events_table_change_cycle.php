@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('medias', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
-            $table->string('url');
-            $table->timestamps(); 
+        Schema::table('events', function (Blueprint $table) {
+             $table->string('cycle')->nullable()->change();
         });
-
     }
 
     /**
@@ -25,7 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('medias');
-
+        Schema::table('events', function (Blueprint $table) {
+             $table->string('cycle');
+        });
     }
 };

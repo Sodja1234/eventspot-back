@@ -12,6 +12,9 @@ class Media extends Model
         'url'
     ];
 
+    protected $table = 'medias';
+
+
     public function event()
     {
         return $this->BelongsTo(Event::class);

@@ -6,7 +6,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
+use App\Http\Controllers\Favorie;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Route utilisateur protégée
@@ -17,7 +17,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         ]);
     });
 
-    // Ajoutez ici vos autres routes protégées
+    Route::post('/events/{event_id}/favorite', Favorie::class);
 });
 
 Route::apiResource('evenements', EventController::class);

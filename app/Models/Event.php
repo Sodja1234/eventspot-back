@@ -45,6 +45,11 @@ class Event extends Model
         return $this->HasMany(Media::class);
     }
     
+     public function favoritedByUsers()
+    {
+    return $this->belongsToMany(User::class, 'event_user');
+    }
+
 
 
 

@@ -19,6 +19,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     Route::post('/events/{event_id}/favorite', Favorie::class);
     Route::apiResource('evenements', EventController::class);
+    Route::get('/favorites', [EventController::class, 'getUserFavorites']);
 });
 
 Route::apiResource('evenements', EventController::class);

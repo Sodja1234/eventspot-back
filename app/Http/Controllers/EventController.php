@@ -135,6 +135,8 @@ class EventController extends Controller
 
         $event = Event::create($request->except('tickets'));
         $path = $request->file('url')->store('url', 'public');
+        $user = auth()->user();
+
 
         $media = Media::create([
         'event_id' => $event->id,
@@ -154,7 +156,7 @@ class EventController extends Controller
                     'title' => $request->title,
                     'description' => $request->description,
                     'cycle' => $request->cycle,
-                    'created_by' => $request->created_by,
+                    'created_by' => $user,
                     'date_time_start' => $request->date_time_start,
                     'date_time_end' => $request->date_time_end,
                     'address' => $request->address,

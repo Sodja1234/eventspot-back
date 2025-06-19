@@ -13,16 +13,19 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $category=CategoryResource::collection(Category::all());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Données récupérée avec succes',
-            'data' =>$category
-        ]);
+        if ($request->has('all')) {
+            $query = Category::All();
+            return CategoryResource::collection($query);
+        }
+        $query = Category::query();
+        $categories = $query->paginate(18);
+
+        return CategoryResource::collection($categories);
     }
+
 
     /**
      * Store a newly created resource in storage.

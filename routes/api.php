@@ -29,10 +29,10 @@ Route::prefix('/search')->group(
         Route::get('user/{name}', [UserController::class, 'index']);
     }
 );
-Route::prefix('event')->group(
+Route::prefix('events')->group(
     function () {
         Route::get('/id/{id}', [EventController::class, 'show']);
-        Route::get('/three', [EventController::class, 'getLastThreeEvents']);
+        Route::get('', [EventController::class, 'index']);
     }
 );
 Route::get('category/{id}', [CategoryController::class, 'show']);

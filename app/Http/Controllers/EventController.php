@@ -208,4 +208,30 @@ class EventController extends Controller
     {
         //
     }
+
+    public function getUserFavorites(Request $request)
+{
+    try {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'erreur' => 'Utilisateur non connecté'
+            ], 401);
+        }
+     
+        $favorites = $user->events()->get(); 
+        $event = EventResource::collection($favorites);
+
+        return response()->json([
+            'favoris' => $event
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => $e->getMessage()
+        ],500);
+}
+}
+
 }

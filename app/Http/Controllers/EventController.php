@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\EventResource;
 use App\Models\Media;
@@ -16,25 +17,66 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Event::query();
+        $query = Event::with(['categories', 'user', 'medias']);
+
+        // latest event
+        if ($request->has('exclude')) {
+            $excludeId = $request->query('exclude_id');
+            $query->where('id', '!=', $excludeId);
+        }
+
+        if ($request->has('latest')) {
+            $count = $request->query('count', 6);
+            $events = $query->orderBy('id', 'desc')->take($count)->get();
+            return EventResource::collection($events);
+        }
+
         $per_page = $request->query('per_page', 20);
 
+        // Search keyword
         $search = $request->query('search');
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(title) LIKE ?', ['%' . strtolower($search) . '%'])
-                    ->orWhereRaw('LOWER(description) LIKE ?', ['%' . strtolower($search) . '%']);
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        if ($request->query('cycle')) {
-            $cycle = strtolower($request->query('cycle'));
-            $query->whereRaw('LOWER(cycle) LIKE ?', ['%' . $cycle . '%']);
+        // Filtering by specific fields
+        $filters = $request->except(['search', 'per_page', 'page', 'category_id', 'user_id', 'status', 'latest', 'count']);
+        foreach ($filters as $field => $value) {
+            if ($value && Schema::hasColumn('events', $field)) {
+                $query->where($field, 'like', "%{$value}%");
+            }
         }
+
+        // Filter by category
+        if ($request->has('category_id')) {
+            $query->whereHas('categories', function ($q) use ($request) {
+                $q->where('categories.id', $request->category_id);
+            });
+        }
+
+        // Filter by user
+        if ($request->has('user_id')) {
+            $query->where('created_by', $request->user_id);
+        }
+
+        if ($request->has('status')) {
+            $status = $request->status;
+            if ($status === 'upcoming') {
+                $query->upcoming();
+            } elseif ($status === 'past') {
+                $query->past();
+            }
+        }
+
 
         $events = $query->paginate($per_page);
 
-        if ($events->isEmpty()) {
+        if ($events->isEmpty() && !$request->has('search') && !$request->has('category_id') && !$request->has('user_id') && !$request->has('status') && empty(array_filter($filters))) {
+            $events = Event::with(['categories', 'user', 'medias'])->paginate($per_page);
+        } elseif ($events->isEmpty()) {
             return response()->json(['message' => 'Event not found'], 404);
         }
 
@@ -92,11 +134,11 @@ class EventController extends Controller
         }
 
         $event = Event::create($request->except('tickets'));
-        $path = $request->file('url')->store('url', 'public'); 
+        $path = $request->file('url')->store('url', 'public');
 
         $media = Media::create([
         'event_id' => $event->id,
-        'url' => 'storage/' . $path, 
+        'url' => 'storage/' . $path,
         ]);
 
         if ($request->has('category_ids') && is_array($request->category_ids)) {
@@ -163,12 +205,5 @@ class EventController extends Controller
     public function destroy(string $id)
     {
         //
-    }
-    public function getLastThreeEvents()
-    {
-        $events = Event::orderBy('id', 'desc')
-            ->take(3)
-            ->get();
-        return EventResource::collection($events);
     }
 }

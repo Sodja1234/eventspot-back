@@ -56,9 +56,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
 
 
-    public function interet()
+    public function interets()
     {
-        return $this->belongsToMany(Interet::class);
+        return $this->belongsToMany(Interets::class);
     }
 
     public function isOrganisateur()

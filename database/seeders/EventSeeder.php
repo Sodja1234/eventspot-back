@@ -16,10 +16,9 @@ class EventSeeder extends Seeder
      */
     public function run(): void
     {
+        fake()->unique(true);
         Event::factory()
-            ->count(3)
-            ->count(200)
-            ->has(Category::factory()->count(3))
+            ->count(400)
             ->create()->each(function ($event) {
                 Ticket::factory()->count(2)->create([
                     'event_id' => $event->id,
@@ -27,6 +26,8 @@ class EventSeeder extends Seeder
                 Media::factory()->count(1)->create([
                     'event_id' => $event->id,
                 ]);
+                $category = Category::inRandomOrder()->take(3)->pluck('id');
+                $event->categories()->attach($category);
             });
     }
 }

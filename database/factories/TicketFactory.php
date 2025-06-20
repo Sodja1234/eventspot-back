@@ -17,7 +17,7 @@ class TicketFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->word(),
+            'name' => fake()->sentence(2),
             'price' => fake()->numberBetween(10, 50),
             'places' => fake()->numberBetween(100,500),
             'description' => fake()->sentence(),

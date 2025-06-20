@@ -219,12 +219,12 @@ class EventController extends Controller
                 'erreur' => 'Utilisateur non connecté'
             ], 401);
         }
-     
-        $favorites = $user->events()->get(); 
+
+        $favorites = $user->events()->get();
         $event = EventResource::collection($favorites);
 
         return response()->json([
-            'favoris' => $event
+            'data' => $event
         ], 200);
 
     } catch (\Exception $e) {

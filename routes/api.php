@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Favorie;
+use App\Http\Controllers\SubcribeCntroller;
+use App\Http\Controllers\SubscribeCntroller;
+use App\Http\Controllers\SubscribeController;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Route utilisateur protégée
@@ -20,6 +23,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::post('/events/{event_id}/favorite', Favorie::class);
     Route::apiResource('evenements', EventController::class);
     Route::get('/favorites', [EventController::class, 'getUserFavorites']);
+    Route::post('/events/{event_id}/subscribe', SubscribeController::class);
 });
 
 Route::apiResource('evenements', EventController::class);

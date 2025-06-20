@@ -103,5 +103,12 @@ public function sendPasswordResetNotification($token)
 }
 
 
+function subscribEvents()
+{
+    return $this->belongsToMany(Event::class, 'subscribes')
+                ->withPivot('etat')
+                ->withTimestamps();
+}
+
 
 }

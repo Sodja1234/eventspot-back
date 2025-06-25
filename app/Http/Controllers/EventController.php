@@ -20,15 +20,23 @@ class EventController extends Controller
         $query = Event::with(['categories', 'user', 'medias']);
 
         // latest event
-        if ($request->has('exclude')) {
-            $excludeId = $request->query('exclude_id');
-            $query->where('id', '!=', $excludeId);
-        }
-
         if ($request->has('latest')) {
+            if ($request->has('exclude')) {
+                $excludeId = $request->query('exclude_id');
+                $query->where('id', '!=', $excludeId);
+            }
             $count = $request->query('count', 6);
             $events = $query->orderBy('id', 'desc')->take($count)->get();
             return EventResource::collection($events);
+        }
+        // latest by category
+        if ($request->has('recent_by_category')) {
+            $query->whereHas('categories', function ($q) use ($request): void {
+                $q->where('categories.title', $request->recent_by_category);
+            });
+            $count = $request->query('recent_count', 1);
+
+            return EventResource::collection($query->orderBy('id', 'desc')->take($count)->get());
         }
 
         $per_page = $request->query('per_page', 20);

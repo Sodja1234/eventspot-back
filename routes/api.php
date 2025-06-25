@@ -21,12 +21,18 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     });
 
     Route::post('/events/{event_id}/favorite', Favorie::class);
-    Route::apiResource('evenements', EventController::class);
+    
     Route::get('/favorites', [EventController::class, 'getUserFavorites']);
     Route::post('/events/{event_id}/subscribe', SubscribeController::class);
+    Route::get('events/subsscribe', [SubscribeController::class, 'listSouscriptions']);
 });
 
-Route::apiResource('evenements', EventController::class);
+Route::middleware(['auth:sanctum', 'organisateur'])->group(function () {
+    // Routes réservées aux organisateurs
+    Route::apiResource('evenements', EventController::class);
+    Route::get('/events/{event_id}/subscribers', [SubscribeController::class, 'getSubscribers']);
+    // ... autres routes pour organisateurs ...
+});
 Route::apiResource('categories', CategoryController::class);
 Route::prefix('/search')->group(
     function () {

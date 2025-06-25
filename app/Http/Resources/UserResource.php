@@ -20,8 +20,10 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role,
+            'token' => $this->token,
             'email_verified_at' => $this->email_verified_at,
-            'created_at' => Carbon::parse($this->created_at)->translatedFormat('F Y'),
+            'created_at' => Carbon::parse($this->created_at)->translatedFormat('d F Y'),
+            'interets' => InteretsResource::collection($this->interets),
         ];
     }
 }

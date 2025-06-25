@@ -103,6 +103,14 @@ public function sendPasswordResetNotification($token)
 }
 
 
+
+public function emailOtp()
+{
+    return $this->hasOne(EmailOtp::class);
+}
+
+
+
 function subscribEvents()
 {
     return $this->belongsToMany(Event::class, 'subscribes')

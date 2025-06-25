@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Log;
+use App\Models\EmailOtp;
 
 class RegisteredUserController extends Controller
 {
@@ -47,21 +48,18 @@ class RegisteredUserController extends Controller
                 $user->interets()->attach($validated['interets']);
             }
 
+
+             // Génération et enregistrement de l'OTP lié à l'utilisateur
+            $otp = rand(100000, 999999);
+
+            EmailOtp::updateOrCreate(
+                ['user_id' => $user->id],
+                ['otp' => $otp, 'expires_at' => now()->addMinutes(10)]
+            );
+
             $user->sendEmailVerificationNotification();
 
 
-
-
-            //
-
-            // Génération OTP
-
-
-
-
-
-
-            //
              return response()->json([
                 'message' => 'Inscription réussie. Veuillez vérifier votre adresse e-mail.',
                 'user' => $user

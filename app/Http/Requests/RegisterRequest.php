@@ -21,8 +21,8 @@ class RegisterRequest extends FormRequest
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:public,organisateur',
             'nom_organis' => 'required_if:role,organisateur',
-            'interet' => 'array|required_if:role,public',
-            'interet.*' => 'exists:interets,id',
+            'interets' => 'array|required_if:role,public',
+            'interets.*' => 'exists:interets,id',
         ];
     }
 
@@ -39,8 +39,8 @@ class RegisterRequest extends FormRequest
             'role.required' => 'Le rôle est obligatoire.',
             'role.in' => 'Le rôle sélectionné est invalide.',
             'nom_organis.required_if' => 'Le nom de l’organisateur est requis pour les organisateurs.',
-            'interet.required_if' => 'Les centres d’intérêt sont requis pour les utilisateurs publics.',
-            'interet.*.exists' => 'Un ou plusieurs centres d’intérêt sélectionnés sont invalides.',
+            'interets.required_if' => 'Les centres d’intérêt sont requis pour les utilisateurs publics.',
+            'interets.*.exists' => 'Un ou plusieurs centres d’intérêt sélectionnés sont invalides.',
         ];
     }
     protected function failedValidation(Validator $validator)

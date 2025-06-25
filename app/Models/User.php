@@ -56,9 +56,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
 
 
-    public function interet()
+    public function interets()
     {
-        return $this->belongsToMany(Interet::class);
+        return $this->belongsToMany(Interets::class);
     }
 
     public function isOrganisateur()
@@ -100,6 +100,20 @@ public function sendPasswordResetNotification($token)
    // $url = config('app.frontend_url').'/reset-password?token='.$token.'&email='.urlencode($this->email);
 
     $this->notify(new ResetPassword($token));
+}
+
+
+public function emailOtp()
+{
+    return $this->hasOne(EmailOtp::class);
+}
+
+
+function subscribEvents()
+{
+    return $this->belongsToMany(Event::class, 'subscribes')
+                ->withPivot('etat')
+                ->withTimestamps();
 }
 
 

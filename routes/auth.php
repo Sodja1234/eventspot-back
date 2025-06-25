@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ApiAuthController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\InteretsController;
 
 Route::post('/register', [RegisteredUserController::class, 'store'])
     ->middleware('guest')
@@ -48,6 +50,8 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 Route::post('login', [ApiAuthController::class, 'login']);
 Route::post('api/logout', [ApiAuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::get('/interet', [InteretsController::class, 'index']);
+Route::post('/verify', [OtpVerificationController::class, 'verify']);
 //Route::get('/login', [ApiAuthController::class, 'login'])->name('login');
     
 

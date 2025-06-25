@@ -10,56 +10,64 @@ class InteretsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+     public function index()
     {
-        //
+        return response()->json( Interets::all()
+        );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // POST /api/interets
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nom' => 'required|string|max:255'
+        ]);
+
+        $interet = Interets::create([
+            'nom' => $request->nom
+        ]);
+
+        return response()->json([
+            'message' => 'Intérêt créé avec succès',
+            'interet' => $interet
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Interets $interets)
+    // GET /api/interets/{id}
+    public function show($id)
     {
-        //
+        $interet = Interets::findOrFail($id);
+
+        return response()->json($interet);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Interets $interets)
+    // PUT /api/interets/{id}
+    public function update(Request $request, $id)
     {
-        //
+        $interet = Interets::findOrFail($id);
+
+        $request->validate([
+            'nom' => 'required|string|max:255'
+        ]);
+
+        $interet->update([
+            'nom' => $request->nom
+        ]);
+
+        return response()->json([
+            'message' => 'Intérêt mis à jour avec succès',
+            'interet' => $interet
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Interets $interets)
+    // DELETE /api/interets/{id}
+    public function destroy($id)
     {
-        //
-    }
+        $interet = Interets::findOrFail($id);
+        $interet->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Interets $interets)
-    {
-        //
+        return response()->json([
+            'message' => 'Intérêt supprimé avec succès'
+        ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,10 +12,35 @@ class SubscribeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
+   public function getSubscribers($event_id)
+{
+    try {
+        
+        $event = Event::with(['subscribeUsers' => function($query) {
+            $query->wherePivot('etat', 1);
+        }])->findOrFail($event_id);
+
+        
+        if (auth()->id() != $event->created_by) {
+            return response()->json([
+                'message' => 'Accès refusé. Seul l\'organisateur peut voir les abonnés.'
+            ], 403);
+        }
+
+        $subscribers = $event->subscribeUsers;
+
+        return response()->json([
+            'event' => $event->title,
+            'total_abonnes' => $subscribers->count(),
+            'abonnes' => UserResource::collection($subscribers)
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Erreur lors de la récupération des abonnés: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Store a newly created resource in storage.

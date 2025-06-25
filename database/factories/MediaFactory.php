@@ -18,7 +18,7 @@ class MediaFactory extends Factory
     {
         return
             [
-                'url' => fake()->unique()->imageUrl(),
+                'url' => fake()->imageUrl(),
             ];
     }
 }

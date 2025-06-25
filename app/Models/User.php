@@ -103,10 +103,12 @@ public function sendPasswordResetNotification($token)
 }
 
 
+
 public function emailOtp()
 {
     return $this->hasOne(EmailOtp::class);
 }
+
 
 
 function subscribEvents()
@@ -115,7 +117,6 @@ function subscribEvents()
                 ->withPivot('etat')
                 ->withTimestamps();
 }
-
 
 
 }

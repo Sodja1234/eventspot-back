@@ -50,6 +50,11 @@ class Event extends Model
     return $this->belongsToMany(User::class, 'event_user');
     }
 
+    public function subscribeUsers()
+    {
+        return $this->belongsToMany(User::class, 'subscribes');
+    }
+
 
 
 

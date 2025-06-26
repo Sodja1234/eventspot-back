@@ -1,27 +1,10 @@
 <?php
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,8 +18,8 @@ class ApiAuthController extends Controller
             // Authentifier l'utilisateur via la méthode personnalisée
             $request->authenticate();
 
-            $user = User::where('email', $request->email)->firstOrFail();
-            
+            $user = User::with('interets')->where('email', $request->email)->firstOrFail();
+
             if (is_null($user->email_verified_at)) {
                 return response()->json([
                     'message' => 'Votre adresse e-mail n\'a pas encore été vérifiée.',
@@ -45,10 +28,11 @@ class ApiAuthController extends Controller
 
             $token = $user->createToken('token')->plainTextToken;
             $user['token'] = $token;
+            $data = UserResource::make($user);
 
             return response()->json([
                 'message' => 'Connexion réussie',
-                'data' => $user,
+                'data' => $data,
             ], 200);
         } catch (ValidationException $e) {
             return response()->json([
@@ -113,8 +97,8 @@ class ApiAuthController extends Controller
 
 // class ApiAuthController extends Controller
 // {
-    
-    
+
+
 
 //     public function login(LoginRequest $request)
 //     {
@@ -131,8 +115,8 @@ class ApiAuthController extends Controller
 
 //         $user = User::where('email', $request->email)->firstOrFail();
 
-        
-        
+
+
 //         $token = $user->createToken('token')->plainTextToken;
 //         $user['token'] = $token;
 

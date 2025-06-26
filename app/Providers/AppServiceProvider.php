@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Carbon\Carbon;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
@@ -32,6 +33,9 @@ class AppServiceProvider extends ServiceProvider
 
 public function boot(): void
 {
+    Carbon::setLocale('fr');
+    date_default_timezone_set('Africa/Kinshasa');
+    setlocale(LC_TIME, 'fr_FR.UTF-8');
     // Personnalisation de l'URL envoyée par mail
     Schema::defaultStringLength(191);
     ResetPassword::createUrlUsing(function ($notifiable, string $token) {

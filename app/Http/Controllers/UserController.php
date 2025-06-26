@@ -50,7 +50,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::find($id);
+        $user = User::with('interets')->find($id);
 
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);

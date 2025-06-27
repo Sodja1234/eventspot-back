@@ -27,6 +27,7 @@ class EventResource extends JsonResource
             'date_time_start' => Carbon::parse($this->date_time_start)->translatedFormat('d F Y'),
             'date_time_end' => Carbon::parse($this->date_time_end)->translatedFormat('d F Y'),
             'tickets' => TicketResource::collection($this->ticket),
+            'media' => MediaResource::make($this->medias->first()),
         ];
     }
 }

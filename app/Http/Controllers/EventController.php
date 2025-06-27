@@ -115,7 +115,7 @@ class EventController extends Controller
 
         $validator = Validator::make($request->all(), [
         'title' => 'required|string|max:255|unique:events',
-        'description' => 'required|string|max:500',
+        'description' => 'required|string',
         'cycle' => 'nullable|string|max:100',
         'created_by' => 'required|exists:users,id',
         'date_time_start' => 'required|date|after_or_equal:today',
@@ -228,7 +228,7 @@ class EventController extends Controller
             ], 401);
         }
 
-        $favorites = $user->events()->get();
+        $favorites = $user->events()->orderBy('event_id', 'desc')->get();
         $event = EventResource::collection($favorites);
 
         return response()->json([

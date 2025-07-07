@@ -24,7 +24,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         function () {
             Route::post('{event_id}/favorite', [FavoriteController::class, '__invoke']);
             Route::get('{event_id}/favorite', [FavoriteController::class, 'show']);
-            Route::post('{event_id}/subscribe', SubscribeController::class);
+            Route::post('{event_id}/subscribe', [SubscribeController::class, '__invoke']);
+            Route::get('{event_id}/subscribe', [SubscribeController::class, 'show']);
             Route::get('subsscribe', [SubscribeController::class, 'listSouscriptions']);
             Route::get('/subscribe/{id}', [EventController::class, 'show']);
         }

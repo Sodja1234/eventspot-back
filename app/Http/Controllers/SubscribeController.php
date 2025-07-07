@@ -15,12 +15,12 @@ class SubscribeController extends Controller
    public function getSubscribers($event_id)
 {
     try {
-        
+
         $event = Event::with(['subscribeUsers' => function($query) {
             $query->wherePivot('etat', 1);
         }])->findOrFail($event_id);
 
-        
+
         if (auth()->id() != $event->created_by) {
             return response()->json([
                 'message' => 'Accès refusé. Seul l\'organisateur peut voir les abonnés.'
@@ -56,14 +56,14 @@ class SubscribeController extends Controller
             ], 401);
         }
 
-    
+
         $subscription = $user->subscribEvents()->where('event_id', $event_id)->first();
 
         if ($subscription) {
-    
+
             $currentEtat = $subscription->pivot->etat;
 
-      
+
             $newEtat = $currentEtat == 1 ? 0 : 1;
 
             $user->subscribEvents()->updateExistingPivot($event_id, [
@@ -76,7 +76,7 @@ class SubscribeController extends Controller
                 'etat' => $newEtat,
             ]);
         } else {
-          
+
             $user->subscribEvents()->attach($event_id, [
                 'etat' => 1,
                 'created_at' => now(),
@@ -100,9 +100,25 @@ class SubscribeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $event_id)
     {
-        //
+
+        if (auth()->user()->subscribEvents()->where('event_id', $event_id)->where('etat', 1)->exists()) {
+            return response()->json([
+                'data' => [
+                    'message' => 'Votre souscription à cet event est activé.',
+                    'etat' => 1
+                ],
+            ]);
+        } else {
+            return response()->json([
+                'data' => [
+                    'message' => 'Votre souscription à cet event est desactivé.',
+                    'etat' => 0
+
+                ],
+            ]);
+        }
     }
 
     /**

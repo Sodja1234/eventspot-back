@@ -6,7 +6,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Favorie;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\SubcribeCntroller;
 use App\Http\Controllers\SubscribeCntroller;
 use App\Http\Controllers\SubscribeController;
@@ -20,11 +20,16 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         ]);
     });
 
-    Route::post('/events/{event_id}/favorite', Favorie::class);
-    
+    Route::prefix('events')->group(
+        function () {
+            Route::post('{event_id}/favorite', [FavoriteController::class, '__invoke']);
+            Route::get('{event_id}/favorite', [FavoriteController::class, 'show']);
+            Route::post('{event_id}/subscribe', SubscribeController::class);
+            Route::get('subsscribe', [SubscribeController::class, 'listSouscriptions']);
+            Route::get('/subscribe/{id}', [EventController::class, 'show']);
+        }
+    );
     Route::get('/favorites', [EventController::class, 'getUserFavorites']);
-    Route::post('/events/{event_id}/subscribe', SubscribeController::class);
-    Route::get('events/subsscribe', [SubscribeController::class, 'listSouscriptions']);
 });
 
 Route::middleware(['auth:sanctum', 'organisateur'])->group(function () {

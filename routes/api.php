@@ -35,10 +35,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
 Route::middleware(['auth:sanctum', 'organisateur'])->group(function () {
     // Routes réservées aux organisateurs
-    Route::apiResource('evenements', EventController::class);
+    Route::apiResource('evenements', EventController::class)->except(['index', 'show']);
     Route::get('/events/{event_id}/subscribers', [SubscribeController::class, 'getSubscribers']);
+    Route::get('/event/last-event', [EventController::class, 'getLastEvent']);
     // ... autres routes pour organisateurs ...
 });
+Route::apiResource('evenements', EventController::class)->only(['index', 'show']);
 Route::apiResource('categories', CategoryController::class);
 Route::prefix('/search')->group(
     function () {

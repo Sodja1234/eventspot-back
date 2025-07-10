@@ -11,6 +11,20 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Interet; // Ensure the Interet class exists in the App\Models namespace
 use Illuminate\Auth\Notifications\ResetPassword;
 
+/**
+ * @OA\Schema(
+ *     schema="User",
+ *     title="User",
+ *     description="User model",
+ *     @OA\Property(property="id", type="integer", format="int64", description="ID"),
+ *     @OA\Property(property="name", type="string", description="User's name"),
+ *     @OA\Property(property="email", type="string", format="email", description="User's email address"),
+ *     @OA\Property(property="role", type="string", enum={"user", "organisateur"}, description="User's role"),
+ *     @OA\Property(property="email_verified_at", type="string", format="date-time", nullable=true, description="Timestamp of email verification"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", description="Creation timestamp"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", description="Last update timestamp")
+ * )
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */

@@ -8,6 +8,18 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 
+/**
+ * @OA\Schema(
+ *     schema="Media",
+ *     title="Media",
+ *     description="Media model for event images/videos",
+ *     @OA\Property(property="id", type="integer", format="int64", description="ID"),
+ *     @OA\Property(property="event_id", type="integer", format="int64", description="Associated event ID"),
+ *     @OA\Property(property="url", type="string", format="url", description="URL of the media file"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", description="Creation timestamp"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", description="Last update timestamp")
+ * )
+ */
 class Media extends Model
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */

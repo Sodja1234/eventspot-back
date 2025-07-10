@@ -10,8 +10,56 @@ use App\Http\Resources\EventResource;
 use App\Http\Resources\TicketResource;
 use Illuminate\Support\Facades\DB;
 
+
 class DashboardController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/dashboard",
+     *     summary="Get organizer dashboard statistics and data",
+     *     description="Retrieve statistics, recent events, and tickets for the authenticated organizer user.",
+     *     tags={"Organizers"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Dashboard data retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="user",
+     *                 type="object",
+     *                 @OA\Property(property="name", type="string", example="John Organizer"),
+     *                 @OA\Property(property="email", type="string", format="email", example="john.organizer@example.com")
+     *             ),
+     *             @OA\Property(
+     *                 property="stats",
+     *                 type="object",
+     *                 @OA\Property(property="total_events", type="integer", example=10),
+     *                 @OA\Property(property="upcoming_events", type="integer", example=3),
+     *                 @OA\Property(property="past_events", type="integer", example=7),
+     *                 @OA\Property(property="total_participants", type="integer", example=150),
+     *                 @OA\Property(property="total_revenue", type="number", format="float", example=12500.50)
+     *             ),
+     *             @OA\Property(
+     *                 property="events",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/EventResource")
+     *             ),
+     *             @OA\Property(
+     *                 property="tickets",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/TicketResource")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - User is not an organizer or not authenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Not authorized")
+     *         )
+     *     )
+     * )
+     */
     public function organizerDashboard(Request $request)
     {
         $user = $request->user();
@@ -44,6 +92,58 @@ class DashboardController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/dashboard/events/{filter?}",
+     *     summary="Get organizer's events with optional filtering and search",
+     *     description="Retrieve a paginated list of events created by the authenticated organizer, optionally filtered by upcoming or past events and searchable by title or description.",
+     *     tags={"Organizers"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="filter",
+     *         in="query",
+     *         description="Filter events by status: 'all' (default), 'upcoming', or 'past'",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"all", "upcoming", "past"}, default="all")
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search term to filter events by title or description",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Paginated list of events retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/EventResource")
+     *             ),
+     *             @OA\Property(
+     *                 property="links",
+     *                 type="object",
+     *                 description="Pagination links"
+     *             ),
+     *             @OA\Property(
+     *                 property="meta",
+     *                 type="object",
+     *                 description="Pagination metadata"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - User not authenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated")
+     *         )
+     *     )
+     * )
+     */
     public function organizerEvents(Request $request, $filter = 'all')
     {
         $user = $request->user();

@@ -10,7 +10,23 @@ class InteretsController extends Controller
     /**
      * Display a listing of the resource.
      */
-     public function index()
+    /**
+     * @OA\Get(
+     *     path="/api/interet",
+     *     summary="Get list of all interests",
+     *     description="Retrieve the complete list of all available interests.",
+     *     tags={"Users"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of interests retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/InteretsResource")
+     *         )
+     *     )
+     * )
+     */
+    public function index()
     {
         return response()->json( Interets::all()
         );

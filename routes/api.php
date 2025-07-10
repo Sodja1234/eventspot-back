@@ -44,6 +44,7 @@ Route::prefix('categories')->group(
     function () {
         Route::get('{id}', [CategoryController::class, 'show']);
         Route::post('', [CategoryController::class, 'store']);
+        Route::get('', [CategoryController::class, 'index']);
     }
 );
 

@@ -23,9 +23,9 @@ Route::post('/register', [RegisteredUserController::class, 'store'])
 //     ->name('login');
 
 Route::middleware('auth:sanctum')->prefix('dashboard')->group(function () {
-    Route::get('/organizer', [DashboardController::class, 'organizerDashboard']);
-    Route::get('/organizer/events/{filter?}', [DashboardController::class, 'organizerEvents']);
-    Route::get('/user/tickets', [TicketController::class, 'getUserTicket']);
+    Route::get('', [DashboardController::class, 'organizerDashboard']);
+    Route::get('events/{filter?}', [DashboardController::class, 'organizerEvents']);
+    Route::get('tickets', [TicketController::class, 'getUserTicket']);
 });
 
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
@@ -53,7 +53,7 @@ Route::post('api/logout', [ApiAuthController::class, 'logout'])->middleware('aut
 Route::get('/interet', [InteretsController::class, 'index']);
 Route::post('/verify', [OtpVerificationController::class, 'verify']);
 //Route::get('/login', [ApiAuthController::class, 'login'])->name('login');
-    
+
 
 
 // routes/auth.php

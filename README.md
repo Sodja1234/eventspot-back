@@ -59,3 +59,22 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Swagger
+
+To install, publish and generate swagger-php, you can use the following command:
+
+```bash
+# Install Required Packages
+composer require darkaonline/l5-swagger tymon/jwt-auth
+# Configure JWT Authentication
+php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider"
+# Publish Swagger Configuration
+php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"
+# Generate Swagger
+php artisan l5-swagger:generate
+```
+
+## License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

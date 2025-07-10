@@ -13,8 +13,52 @@ use App\Models\User;
 class VerifyEmailController extends Controller
 {
 
-
-       public function __invoke(Request $request, $id, $hash): RedirectResponse
+    /**
+     * @OA\Get(
+     *     path="/api/verify-email/{id}/{hash}",
+     *     summary="Verify user email address",
+     *     description="Verify the user's email using the user ID and hash. Redirects to frontend login page with verification status.",
+     *     tags={"Authentication"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the user to verify",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="hash",
+     *         in="path",
+     *         description="SHA1 hash of the user's email",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=302,
+     *         description="Redirect to frontend login with verification status",
+     *         @OA\Header(
+     *             header="Location",
+     *             description="URL to redirect the user",
+     *             @OA\Schema(type="string", example="https://frontend.example.com/login?verified=1")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Invalid verification link",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="invalid-link")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="User not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="User not found")
+     *         )
+     *     )
+     * )
+     */
+    public function __invoke(Request $request, $id, $hash): RedirectResponse
 {
     Log::info("Vérification email commencée pour l'utilisateur ID: " . $id);
 
@@ -54,7 +98,7 @@ class VerifyEmailController extends Controller
 //     public function __invoke(EmailVerificationRequest $request): RedirectResponse
 // {
 //     $user = $request->user();
-    
+
 //     if ($user->hasVerifiedEmail()) {
 //         return redirect()->away(config('app.frontend_url').'/login?verified=1');
 //     }

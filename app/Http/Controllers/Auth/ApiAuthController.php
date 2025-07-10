@@ -12,6 +12,51 @@ use Illuminate\Validation\ValidationException;
 
 class ApiAuthController extends Controller
 {
+    /**
+     * @OA\Post(
+     *      path="/api/login",
+     *      operationId="loginUser",
+     *      tags={"Authentication"},
+     *      summary="User Login",
+     *      description="Logs in a user and returns an API token.",
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="User credentials",
+     *          @OA\JsonContent(
+     *              required={"email","password"},
+     *              @OA\Property(property="email", type="string", format="email", example="kopp@odc.com"),
+     *              @OA\Property(property="password", type="string", format="password", example="password"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Login successful",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Connexion réussie"),
+     *              @OA\Property(property="data", ref="#/components/schemas/User")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Email not verified",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Votre adresse e-mail n'a pas encore été vérifiée.")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Validation Error / Login failed",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Échec de la connexion"),
+     *              @OA\Property(property="errors", type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Server Error"
+     *      )
+     * )
+     */
     public function login(LoginRequest $request)
     {
         try {
@@ -47,9 +92,30 @@ class ApiAuthController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *      path="/api/logout",
+     *      operationId="logoutUser",
+     *      tags={"Authentication"},
+     *      summary="User Logout",
+     *      description="Logs out the current authenticated user by revoking the token.",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="Logout successful",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Déconnexion réussie.")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *      )
+     * )
+     */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $request->user()->tokens()->delete();
 
         return response()->json(['message' => 'Déconnexion réussie.']);
     }

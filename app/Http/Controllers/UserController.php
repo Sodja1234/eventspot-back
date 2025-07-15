@@ -120,6 +120,66 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    /**
+     * @OA\Post(
+     *     path="/api/user/edit/{id}",
+     *     summary="Update a user and their interests",
+     *     tags={"Users"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the user to update",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="User data to update, including optional interests",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="name",
+     *                 type="string",
+     *                 maxLength=255,
+     *                 description="Name of the user"
+     *             ),
+     *             @OA\Property(
+     *                 property="interets",
+     *                 type="array",
+     *                 description="Array of interest IDs to sync with the user",
+     *                 @OA\Items(type="integer")
+     *             ),
+     *             example={
+     *                 "name": "John Doe",
+     *                 "interets": {1, 2, 3}
+     *             }
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User successfully updated with interests",
+     *         @OA\JsonContent(ref="#/components/schemas/UserResource")
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="User attempted to update another user",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="You can not update another user")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="object", example={
+     *               "name"={"The name must be a string."},
+     *               "interets"={"The interets must be an array."}
+     *             })
+     *         )
+     *     )
+     * )
+     */
     public function update(Request $request, string $id)
     {
         $user = $request->user();

@@ -1794,6 +1794,115 @@
                 }
             }
         },
+        "/api/user/edit/{id}": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update a user and their interests",
+                "operationId": "878c27c9bd8eaff6428ac2004ebbcc83",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user to update",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "User data to update, including optional interests",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Name of the user",
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "interets": {
+                                        "description": "Array of interest IDs to sync with the user",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "example": {
+                                "name": "John Doe",
+                                "interets": [
+                                    1,
+                                    2,
+                                    3
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User successfully updated with interests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "User attempted to update another user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You can not update another user"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "object",
+                                            "example": {
+                                                "name": [
+                                                    "The name must be a string."
+                                                ],
+                                                "interets": [
+                                                    "The interets must be an array."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/dashboard": {
             "get": {
                 "tags": [

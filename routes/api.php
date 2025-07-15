@@ -30,6 +30,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             Route::get('/favorites', [EventController::class, 'getUserFavorites']);
         }
     );
+
+    Route::post('/user/edit/{id}', [UserController::class, 'update']);
 });
 
 Route::middleware(['auth:sanctum', 'organisateur'])->group(function () {
@@ -44,6 +46,7 @@ Route::prefix('categories')->group(
     function () {
         Route::get('{id}', [CategoryController::class, 'show']);
         Route::post('', [CategoryController::class, 'store']);
+        Route::get('', [CategoryController::class, 'index']);
     }
 );
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -119,9 +120,105 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    /**
+     * @OA\Post(
+     *     path="/api/user/edit/{id}",
+     *     summary="Update a user and their interests",
+     *     tags={"Users"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the user to update",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="User data to update, including optional interests",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="name",
+     *                 type="string",
+     *                 maxLength=255,
+     *                 description="Name of the user"
+     *             ),
+     *             @OA\Property(
+     *                 property="interets",
+     *                 type="array",
+     *                 description="Array of interest IDs to sync with the user",
+     *                 @OA\Items(type="integer")
+     *             ),
+     *             example={
+     *                 "name": "John Doe",
+     *                 "interets": {1, 2, 3}
+     *             }
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User successfully updated with interests",
+     *         @OA\JsonContent(ref="#/components/schemas/UserResource")
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="User attempted to update another user",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="You can not update another user")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="object", example={
+     *               "name"={"The name must be a string."},
+     *               "interets"={"The interets must be an array."}
+     *             })
+     *         )
+     *     )
+     * )
+     */
     public function update(Request $request, string $id)
     {
-        //
+        $user = $request->user();
+
+        if ($user->id != $id) {
+            return response()->json(['message' => 'You can not update another user'], 403);
+        }
+
+        $userByID = User::with('interets')->find($id);
+
+        $validator = Validator::make($request->all(), [
+            'name'      => 'sometimes|string|max:255',
+            'interets'   => 'sometimes|array|min:1',
+            'interets.*' => 'numeric|exists:interets,id', // vérifie que les IDs existent dans la table interets
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()], 422);
+        }
+
+        $validated = $validator->validated();
+
+        // Mise à jour des champs utilisateur (hors intérêts)
+        if (isset($validated['name'])) {
+            $userByID->name = $validated['name'];
+            $userByID->save();
+        }
+
+        // Synchronisation des intérêts si fournis
+        if (isset($validated['interets'])) {
+            // sync() va attacher les intérêts présents dans le tableau,
+            // détacher ceux qui ne sont pas dans le tableau et garder ceux présents
+            $userByID->interets()->sync($validated['interets']);
+        }
+
+        // Recharger la relation pour retourner les données à jour
+        $userByID->load('interets');
+
+        return UserResource::make($userByID);
     }
 
     /**

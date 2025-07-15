@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -121,7 +122,43 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $user = $request->user();
+
+        if ($user->id != $id) {
+            return response()->json(['message' => 'You can not update another user'], 403);
+        }
+
+        $userByID = User::with('interets')->find($id);
+
+        $validator = Validator::make($request->all(), [
+            'name'      => 'sometimes|string|max:255',
+            'interets'   => 'sometimes|array|min:1',
+            'interets.*' => 'numeric|exists:interets,id', // vérifie que les IDs existent dans la table interets
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()], 422);
+        }
+
+        $validated = $validator->validated();
+
+        // Mise à jour des champs utilisateur (hors intérêts)
+        if (isset($validated['name'])) {
+            $userByID->name = $validated['name'];
+            $userByID->save();
+        }
+
+        // Synchronisation des intérêts si fournis
+        if (isset($validated['interets'])) {
+            // sync() va attacher les intérêts présents dans le tableau,
+            // détacher ceux qui ne sont pas dans le tableau et garder ceux présents
+            $userByID->interets()->sync($validated['interets']);
+        }
+
+        // Recharger la relation pour retourner les données à jour
+        $userByID->load('interets');
+
+        return UserResource::make($userByID);
     }
 
     /**

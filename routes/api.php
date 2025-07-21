@@ -28,6 +28,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             Route::get('subsscribe', [SubscribeController::class, 'listSouscriptions']);
             Route::get('/subscribe/{id}', [EventController::class, 'show']);
             Route::get('/favorites', [EventController::class, 'getUserFavorites']);
+            Route::get('/user/events', [EventController::class, 'getUserEvents']);
         }
     );
 

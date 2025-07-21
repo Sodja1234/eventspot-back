@@ -12,7 +12,57 @@ class SubscribeController extends Controller
     /**
      * Display a listing of the resource.
      */
-   public function getSubscribers($event_id)
+    /**
+     * @OA\Get(
+     *     path="/api/events/{event_id}/subscribers",
+     *     summary="Get active subscribers of an event",
+     *     description="Retrieve the list of users subscribed (with active subscription) to a specific event. Only the event organizer can access this endpoint.",
+     *     tags={"Events"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="event_id",
+     *         in="path",
+     *         description="ID of the event to get subscribers for",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Subscribers retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="event", type="string", example="Event Title"),
+     *             @OA\Property(property="total_abonnes", type="integer", example=42),
+     *             @OA\Property(
+     *                 property="abonnes",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/UserResource")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - Only the event organizer can view subscribers",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Access denied. Only the organizer can view subscribers.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Event not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Event not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Error retrieving subscribers: error details")
+     *         )
+     *     )
+     * )
+     */
+    public function getSubscribers($event_id)
 {
     try {
 
@@ -45,6 +95,45 @@ class SubscribeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    /**
+     * @OA\Post(
+     *     path="/api/events/{event_id}/subscribe",
+     *     summary="Toggle subscription status for an event",
+     *     description="Activate, deactivate, or create a subscription for the authenticated user on a specific event.",
+     *     tags={"Events"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="event_id",
+     *         in="path",
+     *         description="ID of the event to toggle subscription",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Subscription status updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Subscription activated."),
+     *             @OA\Property(property="etat", type="integer", enum={0,1}, example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - User not authenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="erreur", type="string", example="User not authenticated")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Error message")
+     *         )
+     *     )
+     * )
+     */
+
     public function __invoke(Request $request, $event_id)
 {
     try {
@@ -99,6 +188,41 @@ class SubscribeController extends Controller
 
     /**
      * Display the specified resource.
+     */
+    /**
+     * @OA\Get(
+     *     path="/api/events/{event_id}/subscribe",
+     *     summary="Check subscription status for an event",
+     *     description="Returns whether the authenticated user's subscription to a specific event is active or not.",
+     *     tags={"Events"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="event_id",
+     *         in="path",
+     *         description="ID of the event to check subscription status",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Subscription status retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="message", type="string", example="Your subscription to this event is active."),
+     *                 @OA\Property(property="etat", type="integer", enum={0,1}, example=1)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - User not authenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="erreur", type="string", example="User not authenticated")
+     *         )
+     *     )
+     * )
      */
     public function show(Request $request, string $event_id)
     {

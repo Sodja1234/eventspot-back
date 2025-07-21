@@ -12,7 +12,6 @@ use App\Http\Controllers\SubscribeCntroller;
 use App\Http\Controllers\SubscribeController;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
-    // Route utilisateur protégée
     Route::get('/user', function (Request $request) {
         return response()->json([
             'user' => $request->user()->load('organisateur'),
@@ -28,20 +27,29 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             Route::get('{event_id}/subscribe', [SubscribeController::class, 'show']);
             Route::get('subsscribe', [SubscribeController::class, 'listSouscriptions']);
             Route::get('/subscribe/{id}', [EventController::class, 'show']);
+            Route::get('/favorites', [EventController::class, 'getUserFavorites']);
         }
     );
-    Route::get('/favorites', [EventController::class, 'getUserFavorites']);
+
+    Route::post('/user/edit/{id}', [UserController::class, 'update']);
 });
 
 Route::middleware(['auth:sanctum', 'organisateur'])->group(function () {
-    // Routes réservées aux organisateurs
-    Route::apiResource('evenements', EventController::class)->except(['index', 'show']);
-    Route::get('/events/{event_id}/subscribers', [SubscribeController::class, 'getSubscribers']);
-    Route::get('/event/last-event', [EventController::class, 'getLastEvent']);
-    // ... autres routes pour organisateurs ...
+    Route::prefix('events')->group(
+        function () {
+            Route::post('', [EventController::class, 'store']);
+            Route::get('{event_id}/subscribers', [SubscribeController::class, 'getSubscribers']);
+        }
+    );
 });
-Route::apiResource('evenements', EventController::class)->only(['index', 'show']);
-Route::apiResource('categories', CategoryController::class);
+Route::prefix('categories')->group(
+    function () {
+        Route::get('{id}', [CategoryController::class, 'show']);
+        Route::post('', [CategoryController::class, 'store']);
+        Route::get('', [CategoryController::class, 'index']);
+    }
+);
+
 Route::prefix('/search')->group(
     function () {
         Route::get('', [EventController::class, 'index']);
@@ -51,10 +59,10 @@ Route::prefix('/search')->group(
 );
 Route::prefix('events')->group(
     function () {
-        Route::get('/id/{id}', [EventController::class, 'show']);
+        Route::get('/{id}', [EventController::class, 'show']);
         Route::get('', [EventController::class, 'index']);
     }
 );
-Route::get('category/{id}', [CategoryController::class, 'show']);
+
 Route::get('user/{id}', [UserController::class, 'show']);
 require __DIR__.'/auth.php';

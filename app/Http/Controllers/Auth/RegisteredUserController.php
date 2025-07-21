@@ -25,6 +25,47 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    /**
+     * @OA\Post(
+     *     path="/api/register",
+     *     summary="Register a new user",
+     *     description="Create a new user account with role-specific data and send an email verification notification.",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","email","password","role"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="strongPassword123"),
+     *             @OA\Property(property="role", type="string", enum={"organisateur", "public"}, example="public"),
+     *             @OA\Property(property="nom_organis", type="string", example="Organisateur Name", description="Required if role is 'organisateur'"),
+     *             @OA\Property(
+     *                 property="interets",
+     *                 type="array",
+     *                 @OA\Items(type="integer"),
+     *                 description="Array of interest IDs, required if role is 'public'"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="User registered successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Registration successful. Please verify your email address."),
+     *             @OA\Property(property="user", ref="#/components/schemas/UserResource")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error during registration",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="An error occurred during registration."),
+     *             @OA\Property(property="error", type="string", example="Detailed error message")
+     *         )
+     *     )
+     * )
+     */
     public function store(RegisterRequest $request): JsonResponse
 
 
@@ -49,7 +90,7 @@ class RegisteredUserController extends Controller
             }
 
 
-             // Génération et enregistrement de l'OTP lié à l'utilisateur
+            // Génération et enregistrement de l'OTP lié à l'utilisateur
             $otp = rand(100000, 999999);
 
             EmailOtp::updateOrCreate(
@@ -60,21 +101,19 @@ class RegisteredUserController extends Controller
             $user->sendEmailVerificationNotification();
 
 
-             return response()->json([
+            return response()->json([
                 'message' => 'Inscription réussie. Veuillez vérifier votre adresse e-mail.',
                 'user' => $user
             ], 201);
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de l’inscription: ' . $e->getMessage());
 
-             return response()->json([
+            return response()->json([
                 'message' => 'Une erreur s’est produite lors de l’inscription.',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
-
 }
 
 
@@ -110,14 +149,14 @@ class RegisteredUserController extends Controller
 //                 'interets' => 'array|required_if:role,public',
 //                 'interets.*' => 'exists:interets,id',
 //             ]);
-        
+
 //             $user = User::create([
 //                 'fullname' => $validated['fullname'],
 //                 'email' => $validated['email'],
 //                 'password' => bcrypt($validated['password']),
 //                 'role' => $validated['role'],
 //             ]);
-        
+
 //             if ($user->role === 'organisateur') {
 //                 Organisateur::create([
 //                     'user_id' => $user->id,

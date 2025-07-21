@@ -432,4 +432,20 @@ class EventController extends Controller
             ], 500);
         }
     }
+     public function getUserEvents(Request $request)
+{
+    $user = $request->user(); 
+    $events = Event::where('created_by', $user->id)->get();
+
+    $userData = [
+        'name' => $user->name,
+        'email' => $user->email,
+        'role' => $user->role, 
+    ];
+
+    return response()->json([
+        'user' => $userData,
+        'events' => EventResource::collection($events),
+    ]);
+}
 }

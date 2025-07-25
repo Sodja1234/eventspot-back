@@ -370,14 +370,122 @@ class EventController extends Controller
         return EventResource::make($event);
     }
 
-
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update(Request $request,  $event)
+{
+    $user = Auth::user();
+
+    $event = Event::find($event);
+
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Utilisateur non authentifié'
+        ], 401);
     }
+
+    if (!$event) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Événement non trouvé'
+        ], 404);
+    }
+
+    if ($event->created_by !== $user->id) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Vous n\'êtes pas autorisé à modifier cet événement'
+        ], 403);
+    }
+
+  
+    
+
+    $validator = Validator::make($request->all(), [
+        'title' => 'sometimes|string|max:255|unique:events,title,' . $event->id,
+        'description' => 'sometimes|string|max:500',
+        'cycle' => 'nullable|string|max:100',
+        'date_time_start' => 'sometimes|date|after_or_equal:today',
+        'date_time_end' => 'sometimes|date|after_or_equal:date_time_start',
+        'category_ids' => 'nullable|array',
+        'category_ids.*' => 'exists:categories,id',
+        'address' => 'sometimes|string|max:255',
+        'latitude' => ['sometimes', 'numeric', 'between:-90,90'],
+        'longitude' => ['sometimes', 'numeric', 'between:-180,180'],
+        'tickets' => 'nullable|array|min:1',
+        'tickets.*.name' => 'sometimes|string|max:255',
+        'tickets.*.price' => 'sometimes|numeric|min:10',
+        'tickets.*.places' => 'sometimes|integer|min:1',
+        'tickets.*.description' => 'sometimes|string|max:100',
+        'url' => 'sometimes|file|mimes:jpg,jpeg,png,mp4|max:10240'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Données invalides',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+   
+    $event->update($request->except(['tickets', 'category_ids', 'url']));
+
+    // dd($event);
+
+    // Mise à jour des catégories (relation many-to-many)
+    if ($request->has('category_ids')) {
+        $event->categories()->sync($request->category_ids);
+    }
+
+    // Mise à jour du média
+    if ($request->hasFile('url')) {
+        $path = $request->file('url')->store('url', 'public');
+
+        // Supprime l'ancien média lié
+        $event->medias()->delete();
+
+        // Crée un nouveau média
+        $media = Media::create([
+            'event_id' => $event->id,
+            'url' => 'storage/' . $path,
+        ]);
+    } else {
+        $media = $event->medias()->first();
+    }
+
+    // Supprime les anciens tickets
+    $event->ticket()->delete();
+
+    $createdTickets = [];
+
+    // Création des nouveaux tickets
+    if ($request->has('tickets')) {
+        foreach ($request->tickets as $ticketData) {
+            $ticket = new Ticket([
+                'name' => $ticketData['name'],
+                'price' => $ticketData['price'],
+                'places' => $ticketData['places'],
+                'description' => $ticketData['description'],
+            ]);
+            $event->ticket()->save($ticket);
+            $createdTickets[] = $ticket->toArray();
+        }
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Événement mis à jour avec succès',
+        'data' => [
+            'event' => $event->fresh()->toArray(),
+            'tickets' => $createdTickets,
+            'url' => $media
+        ]
+    ]);
+}
 
     /**
      * Remove the specified resource from storage.

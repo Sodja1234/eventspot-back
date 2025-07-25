@@ -350,13 +350,13 @@ class EventController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
-     *          @OA\JsonContent(ref="#/components/schemas/Event")
+     *          @OA\JsonContent(ref="#/components/schemas/EventResource")
      *       ),
      *      @OA\Response(
      *          response=404,
      *          description="Resource Not Found",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="User not found")
+     *              @OA\Property(property="message", type="string", example="Event not found")
      *          )
      *      )
      * )
@@ -445,6 +445,42 @@ class EventController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/user/events",
+     *     operationId="getUserEvents",
+     *     tags={"Events"},
+     *     summary="Get events created by the authenticated user",
+     *     description="Returns user information along with all events created by the authenticated user.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="user",
+     *                 type="object",
+     *                 @OA\Property(property="name", type="string", example="John Doe"),
+     *                 @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *                 @OA\Property(property="role", type="string", enum={"user", "organisateur"}, example="organisateur")
+     *             ),
+     *             @OA\Property(
+     *                 property="events",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/EventResource")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated")
+     *         )
+     *     )
+     * )
+     */
      public function getUserEvents(Request $request)
 {
     $user = $request->user();

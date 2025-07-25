@@ -18,6 +18,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="title", type="string", example="Concert Rock"),
  *     @OA\Property(property="description", type="string", example="Un super concert rock"),
+ *     @OA\Property(property="address", type="string", example="123 Rue de la Musique, Paris"),
  *     @OA\Property(property="cycle", type="string", example="Annuel"),
  *     @OA\Property(
  *         property="categories",
@@ -38,7 +39,9 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(
  *         property="media",
  *         ref="#/components/schemas/MediaResource"
- *     )
+ *     ),
+ *     @OA\Property(property="favorite", type="string", example="0", description="État de favori (0 ou 1)"),
+ *     @OA\Property(property="subscribe", type="string", example="0", description="État d'abonnement (0 ou 1)")
  * )
  */
 class EventResource extends JsonResource

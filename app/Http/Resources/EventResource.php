@@ -54,6 +54,7 @@ class EventResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
+            'address'=> $this->address,
             'cycle' => $this->cycle,
             'categories' => CategoryResource::collection($this->categories),
             'created_by' => UserResource::make(User::find($this->created_by)),
@@ -61,6 +62,8 @@ class EventResource extends JsonResource
             'date_time_end' => Carbon::parse($this->date_time_end)->translatedFormat('d F Y'),
             'tickets' => TicketResource::collection($this->ticket),
             'media' => MediaResource::make($this->medias->first()),
+            'favorite' => optional(optional($this->whenLoaded('favorite'))->pivot)->etat ?? "0",
+            'subscribe' => optional(optional($this->whenLoaded('subscribe'))->pivot)->etat ?? "0",
         ];
     }
 }

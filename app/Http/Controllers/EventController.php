@@ -153,7 +153,7 @@ class EventController extends Controller
         }
 
 
-        $events = $query->paginate($per_page);
+        $events = $query->orderBy('id', 'desc')->paginate($per_page);
 
         if ($events->isEmpty() && !$request->has('search') && !$request->has('category_id') && !$request->has('user_id') && !$request->has('status') && empty(array_filter($filters))) {
             $events = Event::with(['categories', 'user', 'medias'])->paginate($per_page);
@@ -333,7 +333,7 @@ class EventController extends Controller
      */
     /**
      * @OA\Get(
-     *      path="/api/events/{id}/favorite",
+     *      path="/api/events/{id}",
      *      operationId="getEventById",
      *      tags={"Events"},
      *      summary="Get event information",
@@ -361,11 +361,24 @@ class EventController extends Controller
      *      )
      * )
      */
-    public function show(string $id)
+    public function show(string $id, Request $request)
     {
         $event = Event::find($id);
         if (!$event) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => 'Event not found'], 404);
+        }
+
+        if ($request->user()) {
+            $user = $request->user();
+
+            $event->load(['favoritedByUsers' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }, 'subscribeUsers' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }]);
+
+            $event->setRelation('favorite', $event->favoritedByUsers->first());
+            $event->setRelation('subscribe', $event->subscribeUsers->first());
         }
         return EventResource::make($event);
     }
@@ -434,13 +447,13 @@ class EventController extends Controller
     }
      public function getUserEvents(Request $request)
 {
-    $user = $request->user(); 
+    $user = $request->user();
     $events = Event::where('created_by', $user->id)->get();
 
     $userData = [
         'name' => $user->name,
         'email' => $user->email,
-        'role' => $user->role, 
+        'role' => $user->role,
     ];
 
     return response()->json([

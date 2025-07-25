@@ -76,34 +76,42 @@ class FavoriteController extends Controller
     {
         try {
             $user = auth()->user();
+
             if (!$user) {
                 return response()->json([
                     'erreur' => 'Utilisateur non connecté'
                 ], 401);
             }
+            
+            $favorite = $user->events()->where('event_id', $event_id)->first();
 
+            if($favorite){
+                $currentEtat = $favorite->pivot->etat;
+                $newEtat = $currentEtat == 1 ? 0 : 1;
 
-            $event = Event::find($event_id);
-            if (!$event) {
+                $user->events()->updateExistingPivot($event_id, [
+                    'etat' => $newEtat,
+                    'updated_at' => now(),
+                ]);
+
                 return response()->json([
-                    'erreur' => 'Événement inexistant'
-                ], 404);
-            }
-
-
-            $isFavorited = $user->events()->where('event_id', $event_id)->exists();
-
-            if ($isFavorited) {
-
-                $user->events()->detach($event_id);
-                return response()->json([
-                    'message' => 'Événement retiré des favoris.',
+                    'data' => [
+                        'message' => $newEtat ? 'Événement ajouté aux favoris.' : 'Événement retiré des favoris.',                      'etat' => $favorite->pivot->etat,
+                        'etat' => $newEtat,
+                    ],
                 ]);
             } else {
+                $user->events()->attach($event_id, [
+                    'etat' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
 
-                $user->events()->attach($event_id);
                 return response()->json([
-                    'message' => 'Événement ajouté aux favoris.',
+                    'data' => [
+                        'message' => 'Événement ajouté aux favoris...',
+                        'etat' => 1
+                    ]
                 ]);
             }
         } catch (\Exception $e) {
@@ -153,8 +161,10 @@ class FavoriteController extends Controller
      */
     public function show(Request $request, string $event_id)
     {
+        $user = auth()->user();
+        $isFavorited = $user->events()->where('event_id', $event_id)->exists();
 
-        if (auth()->user()->events()->where('event_id', $event_id)->exists()) {
+        if ($isFavorited) {
             return response()->json([
                 'data' => [
                     'message' => 'cet event est bien en favori.',
@@ -166,7 +176,6 @@ class FavoriteController extends Controller
                 'data' => [
                     'message' => 'cet event n\'est pas en favori',
                     'etat' => 0
-
                 ],
             ]);
         }

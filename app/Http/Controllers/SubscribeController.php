@@ -145,14 +145,11 @@ class SubscribeController extends Controller
             ], 401);
         }
 
-
         $subscription = $user->subscribEvents()->where('event_id', $event_id)->first();
 
         if ($subscription) {
 
             $currentEtat = $subscription->pivot->etat;
-
-
             $newEtat = $currentEtat == 1 ? 0 : 1;
 
             $user->subscribEvents()->updateExistingPivot($event_id, [
@@ -161,8 +158,10 @@ class SubscribeController extends Controller
             ]);
 
             return response()->json([
-                'message' => $newEtat ? 'Souscription activée.' : 'Souscription désactivée.',
-                'etat' => $newEtat,
+                'data' => [
+                    'message' => $newEtat ? 'Souscription activée.' : 'Souscription désactivée.',
+                    'etat' => $newEtat,
+                ]
             ]);
         } else {
 
@@ -173,8 +172,10 @@ class SubscribeController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Souscription créée.',
-                'etat' => 1,
+                'data' => [
+                    'message' => 'Souscription créée.',
+                    'etat' => 1
+                    ]
             ]);
         }
     } catch (\Exception $e) {

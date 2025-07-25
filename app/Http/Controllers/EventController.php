@@ -153,7 +153,7 @@ class EventController extends Controller
         }
 
 
-        $events = $query->paginate($per_page);
+        $events = $query->orderBy('id', 'desc')->paginate($per_page);
 
         if ($events->isEmpty() && !$request->has('search') && !$request->has('category_id') && !$request->has('user_id') && !$request->has('status') && empty(array_filter($filters))) {
             $events = Event::with(['categories', 'user', 'medias'])->paginate($per_page);
@@ -333,7 +333,7 @@ class EventController extends Controller
      */
     /**
      * @OA\Get(
-     *      path="/api/events/{id}/favorite",
+     *      path="/api/events/{id}",
      *      operationId="getEventById",
      *      tags={"Events"},
      *      summary="Get event information",
@@ -350,22 +350,35 @@ class EventController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
-     *          @OA\JsonContent(ref="#/components/schemas/Event")
+     *          @OA\JsonContent(ref="#/components/schemas/EventResource")
      *       ),
      *      @OA\Response(
      *          response=404,
      *          description="Resource Not Found",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="User not found")
+     *              @OA\Property(property="message", type="string", example="Event not found")
      *          )
      *      )
      * )
      */
-    public function show(string $id)
+    public function show(string $id, Request $request)
     {
         $event = Event::find($id);
         if (!$event) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => 'Event not found'], 404);
+        }
+
+        if ($request->user()) {
+            $user = $request->user();
+
+            $event->load(['favoritedByUsers' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }, 'subscribeUsers' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }]);
+
+            $event->setRelation('favorite', $event->favoritedByUsers->first());
+            $event->setRelation('subscribe', $event->subscribeUsers->first());
         }
         return EventResource::make($event);
     }
@@ -540,15 +553,51 @@ class EventController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/user/events",
+     *     operationId="getUserEvents",
+     *     tags={"Events"},
+     *     summary="Get events created by the authenticated user",
+     *     description="Returns user information along with all events created by the authenticated user.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="user",
+     *                 type="object",
+     *                 @OA\Property(property="name", type="string", example="John Doe"),
+     *                 @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *                 @OA\Property(property="role", type="string", enum={"user", "organisateur"}, example="organisateur")
+     *             ),
+     *             @OA\Property(
+     *                 property="events",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/EventResource")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated")
+     *         )
+     *     )
+     * )
+     */
      public function getUserEvents(Request $request)
 {
-    $user = $request->user(); 
+    $user = $request->user();
     $events = Event::where('created_by', $user->id)->get();
 
     $userData = [
         'name' => $user->name,
         'email' => $user->email,
-        'role' => $user->role, 
+        'role' => $user->role,
     ];
 
     return response()->json([

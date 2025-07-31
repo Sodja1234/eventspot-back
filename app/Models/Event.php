@@ -46,7 +46,9 @@ class Event extends Model
     'date_time_end',
     'address',
     'latitude',
-    'longitude'
+    'longitude',
+    'available',
+    'remaining_seats'
 ];
 
     public function user()

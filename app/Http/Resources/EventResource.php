@@ -58,6 +58,8 @@ class EventResource extends JsonResource
             'address'=>$this->address,
             'latitude'=>$this->latitude,
             'longitude'=>$this->longitude,
+            'available'=>$this->available_seats,
+            'remaining_seats'=>$this->remaining_seats,
             'categories' => CategoryResource::collection($this->categories),
             'created_by' => UserResource::make(User::find($this->created_by)),
             'date_time_start' => Carbon::parse($this->date_time_start)->translatedFormat('d F Y'),

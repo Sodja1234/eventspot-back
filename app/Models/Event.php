@@ -38,16 +38,18 @@ class Event extends Model
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'title',
-        'description',
-        'cycle',
-        'created_by',
-        'date_time_start',
-        'date_time_end',
-        'address',
-        'latitude',
-        'longitude'
-    ];
+    'title',
+    'description',
+    'cycle',
+    'created_by',
+    'date_time_start',
+    'date_time_end',
+    'address',
+    'latitude',
+    'longitude',
+    'available',
+    'remaining_seats'
+];
 
     public function user()
     {

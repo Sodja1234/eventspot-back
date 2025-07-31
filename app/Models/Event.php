@@ -73,51 +73,43 @@ class Event extends Model
 
      public function favoritedByUsers()
     {
-    return $this->belongsToMany(User::class, 'event_user');
+    return $this->belongsToMany(User::class, 'event_user')->withPivot('etat');
     }
 
     public function subscribeUsers()
     {
-        return $this->belongsToMany(User::class, 'subscribes');
+        return $this->belongsToMany(User::class, 'subscribes')->withPivot('etat');
     }
-
-
-
-
-
-
-
-
 
     public function scopeForOrganisateur($query, $userId)
-{
-    return $query->where('created_by', $userId);
-}
-
-public function scopeUpcoming($query)
-{
-    return $query->where('date_time_start', '>', now());
-}
-
-public function scopePast($query)
-{
-    return $query->where('date_time_end', '<', now());
-}
-
-public function getStatusAttribute()
-{
-    if ($this->date_time_end < now()) {
-        return 'Terminé';
-    } elseif ($this->date_time_start > now()) {
-        return 'À venir';
+    {
+        return $query->where('created_by', $userId);
     }
-    return 'En cours';
-}
 
-public function getTotalParticipantsAttribute()
-{
-    return $this->ticket->sum('reserved_places');
-}
+    public function scopeUpcoming($query)
+    {
+        return $query->where('date_time_start', '>', now());
+    }
+
+    public function scopePast($query)
+    {
+        return $query->where('date_time_end', '<', now());
+    }
+
+    public function getStatusAttribute()
+    {
+        if ($this->date_time_end < now()) {
+            return 'Terminé';
+        } elseif ($this->date_time_start > now()) {
+            return 'À venir';
+        }
+        return 'En cours';
+    }
+
+    public function getTotalParticipantsAttribute()
+    {
+        return $this->ticket->sum('reserved_places');
+    }
     public function getTotalTicketsSoldAttribute()
     {
         return $this->ticket->sum('places') - $this->ticket->sum('reserved_places');

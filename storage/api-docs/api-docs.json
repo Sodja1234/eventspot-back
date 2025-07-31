@@ -1094,7 +1094,7 @@
                 ]
             }
         },
-        "/api/events/{id}/favorite": {
+        "/api/events/{id}": {
             "get": {
                 "tags": [
                     "Events"
@@ -1119,7 +1119,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Event"
+                                    "$ref": "#/components/schemas/EventResource"
                                 }
                             }
                         }
@@ -1132,7 +1132,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "User not found"
+                                            "example": "Event not found"
                                         }
                                     },
                                     "type": "object"
@@ -1167,6 +1167,79 @@
                     },
                     "401": {
                         "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/user/events": {
+            "get": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Get events created by the authenticated user",
+                "description": "Returns user information along with all events created by the authenticated user.",
+                "operationId": "getUserEvents",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "john@example.com"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "user",
+                                                        "organisateur"
+                                                    ],
+                                                    "example": "organisateur"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "events": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/EventResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -2123,6 +2196,10 @@
                         "type": "string",
                         "example": "Un super concert rock"
                     },
+                    "address": {
+                        "type": "string",
+                        "example": "123 Rue de la Musique, Paris"
+                    },
                     "cycle": {
                         "type": "string",
                         "example": "Annuel"
@@ -2152,6 +2229,16 @@
                     },
                     "media": {
                         "$ref": "#/components/schemas/MediaResource"
+                    },
+                    "favorite": {
+                        "description": "État de favori (0 ou 1)",
+                        "type": "string",
+                        "example": "0"
+                    },
+                    "subscribe": {
+                        "description": "État d'abonnement (0 ou 1)",
+                        "type": "string",
+                        "example": "0"
                     }
                 },
                 "type": "object"

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\EventResource;
 use App\Models\Media;
+use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
@@ -252,7 +253,7 @@ class EventController extends Controller
         //     'tickets.*.description' => 'required|string|max:100',
         //     // 'url'=>'required|file|mimes:mp4,mp3,jpeg,png,jpg'
         // ]);
-
+        //dd($request);
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255|unique:events',
             'description' => 'required|string',
@@ -270,7 +271,10 @@ class EventController extends Controller
             'tickets.*.price' => 'required|numeric|min:10',
             'tickets.*.places' => 'required|integer|min:1',
             'tickets.*.description' => 'required|string|max:100',
-            'url' => 'nullable|file|mimes:jpg,jpeg,png,mp4|max:10240'
+            'url' => 'nullable|file|mimes:jpg,jpeg,png,mp4|max:10240',
+            'available'=> 'required|min:0|integer',
+        
+
         ]);
 
         if ($validator->fails()) {
@@ -281,6 +285,7 @@ class EventController extends Controller
             ], 422);
         }
 
+        $remaining_seats =0;
         $event = Event::create($request->except('tickets'));
         $path = $request->file('url')->store('url', 'public');
         $user = auth()->user();
@@ -297,7 +302,6 @@ class EventController extends Controller
         }
 
         $createdTickets = [];
-        $reserved_places = 0;
         if ($request->has('tickets') && is_array($request->input('tickets'))) {
             foreach ($request->input('tickets') as $ticketData) {
                 $ticket = Ticket::create([

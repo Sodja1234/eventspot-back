@@ -145,12 +145,30 @@ class SubscribeController extends Controller
             ], 401);
         }
 
+
+        $event = Event::withCount(['subscribers' => function ($query) {
+        $query->where('etat', 1); 
+        }])->find($event_id);
+
+        if (!$event) {
+        return response()->json([
+            'erreur' => 'Événement non trouvé'
+        ], 404);
+        }
+
+
         $subscription = $user->subscribEvents()->where('event_id', $event_id)->first();
 
         if ($subscription) {
 
             $currentEtat = $subscription->pivot->etat;
             $newEtat = $currentEtat == 1 ? 0 : 1;
+
+            if ($newEtat == 1 && $event->subscribers_count >= $event->available_seats) {
+            return response()->json([
+                'message' => 'Nombre de places déjà atteint. Impossible de réactiver la souscription.'
+            ], 422);
+            }
 
             $user->subscribEvents()->updateExistingPivot($event_id, [
                 'etat' => $newEtat,

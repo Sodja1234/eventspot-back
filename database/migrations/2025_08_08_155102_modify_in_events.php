@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->integer('available')->default(0)->nullable();
-            $table->integer('remaining_seats')->default(0)->nullable();
+            $table->integer('available')->change();
         });
     }
 
@@ -23,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->dropColumn(['available', 'remaining_seats']);
+            $table->integer('available')->default(0)->nullable()->change();
         });
     }
 };

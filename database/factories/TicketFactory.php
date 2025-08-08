@@ -16,12 +16,33 @@ class TicketFactory extends Factory
      */
     public function definition(): array
     {
+        // Tableau de types de billets réalistes en français
+        $ticketTypes = [
+            'Billet standard',
+            'Billet VIP',
+            'Billet premium',
+            'Billet catégorie 1',
+            'Billet catégorie 2',
+            'Billet loge',
+            'Billet balcon',
+            'Billet pelouse',
+            'Billet tribune',
+            'Billet backstage',
+            'Billet early bird',
+            'Billet groupe',
+            'Billet étudiant',
+            'Billet senior',
+            'Billet enfant'
+        ];
+
+        $ticketType = fake()->randomElement($ticketTypes);
+
         return [
-            'name' => fake()->sentence(2),
-            'price' => fake()->numberBetween(10, 50),
-            'places' => fake()->numberBetween(100,500),
-            'description' => fake()->sentence(),
-            'reserved_places' => fake()->numberBetween(0, 20),
+            'name' => $ticketType,
+            'price' => fake()->randomElement([10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 150, 200]),
+            'places' => fake()->numberBetween(50, 1000),
+            'description' => 'Accès ' . strtolower($ticketType) . ' pour l\'événement',
+            'reserved_places' => fake()->numberBetween(0, 50),
         ];
     }
 }

@@ -135,53 +135,64 @@ class SubscribeController extends Controller
      */
 
     public function __invoke(Request $request, $event_id)
-{
-    try {
-        $user = auth()->user();
+    {
+        try {
+            $user = auth()->user();
 
-        if (!$user) {
-            return response()->json([
-                'erreur' => 'Utilisateur non connecté'
-            ], 401);
-        }
-
-
-        $event = Event::withCount(['subscribers' => function ($query) {
-        $query->where('etat', 1); 
-        }])->find($event_id);
-
-        if (!$event) {
-        return response()->json([
-            'erreur' => 'Événement non trouvé'
-        ], 404);
-        }
-
-
-        $subscription = $user->subscribEvents()->where('event_id', $event_id)->first();
-
-        if ($subscription) {
-
-            $currentEtat = $subscription->pivot->etat;
-            $newEtat = $currentEtat == 1 ? 0 : 1;
-
-            if ($newEtat == 1 && $event->subscribers_count >= $event->available_seats) {
-            return response()->json([
-                'message' => 'Nombre de places déjà atteint. Impossible de réactiver la souscription.'
-            ], 422);
+            if (!$user) {
+                return response()->json([
+                    'erreur' => 'Utilisateur non connecté'
+                ], 401);
             }
 
-            $user->subscribEvents()->updateExistingPivot($event_id, [
-                'etat' => $newEtat,
-                'updated_at' => now(),
-            ]);
+            $event = Event::withCount(['subscribeUsers' => function ($query) {
+                $query->where('etat', 1);
+            }])->find($event_id);
 
-            return response()->json([
-                'data' => [
-                    'message' => $newEtat ? 'Souscription activée.' : 'Souscription désactivée.',
+            if (!$event) {
+                return response()->json([
+                    'erreur' => 'Événement non trouvé'
+                ], 404);
+            }
+
+            $subscription = $user->subscribEvents()->where('event_id', $event_id)->first();
+
+
+            if ($subscription) {
+                $currentEtat = $subscription->pivot->etat;
+                $newEtat = $currentEtat == 1 ? 0 : 1;
+
+
+                if ($newEtat == 1 && $event->remaining_seats >= $event->available) {
+                    return response()->json([
+                        'message' => 'Nombre de places déjà atteint. Impossible de réactiver la souscription.'
+                    ], 422);
+                }
+
+
+                $user->subscribEvents()->updateExistingPivot($event_id, [
                     'etat' => $newEtat,
-                ]
-            ]);
-        } else {
+                    'updated_at' => now(),
+                ]);
+
+
+                $event->remaining_seats += ($newEtat == 1) ? 1 : -1;
+                $event->save();
+
+                return response()->json([
+                    'data' => [
+                        'message' => $newEtat ? 'Souscription activée.' : 'Souscription désactivée.',
+                        'etat' => $newEtat,
+                    ]
+                ]);
+            }
+
+
+            if ($event->remaining_seats >= $event->available) {
+                return response()->json([
+                    'message' => 'Nombre de places déjà atteint. Impossible de souscrire.'
+                ], 422);
+            }
 
             $user->subscribEvents()->attach($event_id, [
                 'etat' => 1,
@@ -189,19 +200,22 @@ class SubscribeController extends Controller
                 'updated_at' => now(),
             ]);
 
+
+            $event->remaining_seats += 1;
+            $event->save();
+
             return response()->json([
                 'data' => [
                     'message' => 'Souscription créée.',
                     'etat' => 1
-                    ]
+                ]
             ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                "message" => $e->getMessage()
+            ], 500);
         }
-    } catch (\Exception $e) {
-        return response()->json([
-            "message" => $e->getMessage()
-        ], 500);
     }
-}
 
 
 

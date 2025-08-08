@@ -18,7 +18,7 @@ class EventSeeder extends Seeder
     {
         fake()->unique(true);
         Event::factory()
-            ->count(400)
+            ->count(40)
             ->create()->each(function ($event) {
                 Ticket::factory()->count(2)->create([
                     'event_id' => $event->id,

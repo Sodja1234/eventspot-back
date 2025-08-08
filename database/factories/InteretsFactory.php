@@ -13,20 +13,32 @@ class InteretsFactory extends Factory
 {
     public function definition(): array
     {
-        $usedTitles = Interets::pluck('nom')->toArray();
-
-        $availableTitle = Category::whereNotIn('title', $usedTitles)
-            ->inRandomOrder()
-            ->value('title');
-
-
-        if (!$availableTitle) {
-
-            $availableTitle = fake()->unique()->word();
-        }
+        // Tableau d'intérêts réalistes en français
+        $interets = [
+            'Football',
+            'Cinéma',
+            'Musique',
+            'Politique',
+            'Technologie',
+            'Art',
+            'Mode',
+            'Cuisine',
+            'Voyage',
+            'Éducation',
+            'Santé',
+            'Écologie',
+            'Jeux vidéo',
+            'Littérature',
+            'Histoire',
+            'Photographie',
+            'Dance',
+            'Théâtre',
+            'Science',
+            'Économie'
+        ];
 
         return [
-            'nom' => $availableTitle,
+            'nom' => fake()->randomElement($interets)
         ];
     }
 }

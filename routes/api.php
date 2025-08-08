@@ -66,6 +66,7 @@ Route::prefix('events')->group(
         Route::get('', [EventController::class, 'index']);
     }
 );
+Route::get('userfavorite', [FavoriteController::class, 'getUserFavorites']);
 
 Route::get('user/{id}', [UserController::class, 'show']);
 require __DIR__.'/auth.php';

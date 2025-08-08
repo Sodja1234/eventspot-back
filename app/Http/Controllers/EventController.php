@@ -79,6 +79,41 @@ class EventController extends Controller
      *          required=false,
      *          @OA\Schema(type="string", example="1,2,3")
      *      ),
+     *      @OA\Parameter(
+     *          name="day",
+     *          in="query",
+     *          description="Filter by day of the event",
+     *          required=false,
+     *          @OA\Schema(type="integer", minimum=1, maximum=31)
+     *      ),
+     *      @OA\Parameter(
+     *          name="month",
+     *          in="query",
+     *          description="Filter by month of the event",
+     *          required=false,
+     *          @OA\Schema(type="integer", minimum=1, maximum=12)
+     *      ),
+     *      @OA\Parameter(
+     *          name="year",
+     *          in="query",
+     *          description="Filter by year of the event",
+     *          required=false,
+     *          @OA\Schema(type="integer", minimum=2025, maximum=2050)
+     *      ),
+     *      @OA\Parameter(
+     *          name="organizer",
+     *          in="query",
+     *          description="Filter by organizer name",
+     *          required=false,
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Parameter(
+     *          name="category",
+     *          in="query",
+     *          description="Filter by category title",
+     *          required=false,
+     *          @OA\Schema(type="string")
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -108,10 +143,10 @@ class EventController extends Controller
             }
             $count = $request->query('count', 6);
             $events = $query->orderBy('id', 'desc')->take($count)->get();
-            
+
             // Add favorite and subscribe status for authenticated user
-            $this->loadUserFavoriteAndSubscribeStatus($events, $request);
-            
+
+
             return EventResource::collection($events);
         }
         // latest by category
@@ -121,10 +156,10 @@ class EventController extends Controller
             });
             $count = $request->query('recent_count', 1);
             $events = $query->orderBy('id', 'desc')->take($count)->get();
-            
+
             // Add favorite and subscribe status for authenticated user
             $this->loadUserFavoriteAndSubscribeStatus($events, $request);
-            
+
             return EventResource::collection($events);
         }
 
@@ -140,7 +175,7 @@ class EventController extends Controller
         }
 
         // Filtering by specific fields
-        $filters = $request->except(['search', 'per_page', 'page', 'category_id', 'user_id', 'status', 'latest', 'count']);
+        $filters = $request->except(['search', 'per_page', 'page', 'category_id', 'user_id', 'status', 'latest', 'count', 'day', 'month', 'year', 'organizer', 'category']);
         foreach ($filters as $field => $value) {
             if ($value && Schema::hasColumn('events', $field)) {
                 $query->where($field, 'like', "%{$value}%");
@@ -154,9 +189,38 @@ class EventController extends Controller
             });
         }
 
+        // Filter by category (from Angular form)
+        if ($request->has('category')) {
+            $query->whereHas('categories', function ($q) use ($request) {
+                $q->where('categories.title', 'like', "%{$request->category}%");
+            });
+        }
+
         // Filter by user
         if ($request->has('user_id')) {
             $query->where('created_by', $request->user_id);
+        }
+
+        // Filter by organizer (from Angular form)
+        if ($request->has('organizer')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('name', 'like', "%{$request->organizer}%");
+            });
+        }
+
+        // Filter by date
+        if ($request->has('day') || $request->has('month') || $request->has('year')) {
+            $query->where(function ($q) use ($request) {
+                if ($request->has('day') && $request->day) {
+                    $q->whereDay('date_time_start', $request->day);
+                }
+                if ($request->has('month') && $request->month) {
+                    $q->whereMonth('date_time_start', $request->month);
+                }
+                if ($request->has('year') && $request->year) {
+                    $q->whereYear('date_time_start', $request->year);
+                }
+            });
         }
 
         if ($request->has('status')) {
@@ -171,7 +235,7 @@ class EventController extends Controller
 
         $events = $query->orderBy('id', 'desc')->paginate($per_page);
 
-        if ($events->isEmpty() && !$request->has('search') && !$request->has('category_id') && !$request->has('user_id') && !$request->has('status') && empty(array_filter($filters))) {
+        if ($events->isEmpty() && !$request->has('search') && !$request->has('category_id') && !$request->has('user_id') && !$request->has('status') && !$request->has('day') && !$request->has('month') && !$request->has('year') && !$request->has('organizer') && !$request->has('category') && empty(array_filter($filters))) {
             $events = Event::with(['categories', 'user', 'medias'])->paginate($per_page);
             // Add favorite and subscribe status for authenticated user
             $this->loadUserFavoriteAndSubscribeStatus($events, $request);
@@ -293,7 +357,7 @@ class EventController extends Controller
             'tickets.*.description' => 'required|string|max:100',
             'url' => 'nullable|file|mimes:jpg,jpeg,png,mp4|max:10240',
             'available'=> 'required|min:0|integer',
-        
+
 
         ]);
 
@@ -438,8 +502,8 @@ class EventController extends Controller
         ], 403);
     }
 
-  
-    
+
+
 
     $validator = Validator::make($request->all(), [
         'title' => 'sometimes|string|max:255|unique:events,title,' . $event->id,
@@ -468,7 +532,7 @@ class EventController extends Controller
         ], 422);
     }
 
-   
+
     $event->update($request->except(['tickets', 'category_ids', 'url']));
 
     // dd($event);
@@ -566,6 +630,7 @@ class EventController extends Controller
             }
 
             $favorites = $user->events()->orderBy('event_id', 'desc')->get();
+            $this->loadUserFavoriteAndSubscribeStatus($favorites, $request);
             $event = EventResource::collection($favorites);
 
             return response()->json([
@@ -641,13 +706,13 @@ private function loadUserFavoriteAndSubscribeStatus($events, Request $request)
 {
     if ($request->user()) {
         $user = $request->user();
-        
+
         $events->load(['favoritedByUsers' => function ($query) use ($user) {
             $query->where('user_id', $user->id);
         }, 'subscribeUsers' => function ($query) use ($user) {
             $query->where('user_id', $user->id);
         }]);
-        
+
         foreach ($events as $event) {
             $event->setRelation('favorite', $event->favoritedByUsers->first());
             $event->setRelation('subscribe', $event->subscribeUsers->first());

@@ -16,15 +16,13 @@ class UserSeeder extends Seeder
     {
         fake()->unique(true);
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
             'name' => 'Kopp D. Franklin',
             'email' => 'kopp@odc.com',
             'password' => 'password',
-            'role' => 'public'
+            'role' => 'organisateur'
         ]);
 
-        User::factory()->count(20000)->create()->each(function ($user) {
+        User::factory()->count(1000)->create()->each(function ($user) {
             $interets = Interets::inRandomOrder()->take(3)->pluck('id');
             $user->interets()->attach($interets);
         });

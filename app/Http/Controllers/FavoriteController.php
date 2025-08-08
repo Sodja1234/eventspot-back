@@ -75,6 +75,7 @@ class FavoriteController extends Controller
     public function __invoke(Request $request, $event_id)
     {
         try {
+            sleep(10);
             $user = auth()->user();
 
             if (!$user) {
@@ -82,7 +83,7 @@ class FavoriteController extends Controller
                     'erreur' => 'Utilisateur non connecté'
                 ], 401);
             }
-            
+
             $favorite = $user->events()->where('event_id', $event_id)->first();
 
             if($favorite){
@@ -195,5 +196,12 @@ class FavoriteController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function getUserFavorites(Request $request)
+    {
+        $user = auth()->user();
+        $favorites = $user->events()->wherePivot('etat', 1)->get();
+
+        return EventResource::collection($favorites);
     }
 }

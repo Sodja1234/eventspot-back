@@ -16,9 +16,29 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
+        $categories = [
+            'Sport',
+            'Cinéma',
+            'Musique',
+            'Politique',
+            'Technologie',
+            'Art',
+            'Mode',
+            'Cuisine',
+            'Voyage',
+            'Éducation',
+            'Santé',
+            'Écologie',
+            'Jeux',
+            'Littérature',
+            'Histoire'
+        ];
+
+        $category = fake()->randomElement($categories);
+
         return [
-            'title' => fake()->unique()->word(),
-            'description' => fake()->sentence(),
+            'title' => $category,
+            'description' => 'Événements liés à ' . $category,
         ];
     }
 }

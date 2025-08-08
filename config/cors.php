@@ -48,10 +48,11 @@ return [
 'paths' => ['api/*',
         'login',
         'logout',
-        'sanctum/csrf-cookie'
+        'sanctum/csrf-cookie',
+        'storage/*',
     ],
 'allowed_methods' => ['*'],
-'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:4200'), env('FRONTEND_URL', 'http://localhost:8000')],
+'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:4200'), env('FRONTEND_URL', 'http://localhost:8000'), env('FRONTEND_URL', '*')],
 'allowed_origins_patterns' => [],
 'allowed_headers' => ['*'],
 'exposed_headers' => [],

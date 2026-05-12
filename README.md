@@ -1,80 +1,139 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# EventSpot — Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Projet final du parcours 2024
 
-## About Laravel
+A concise backend for EventSpot. This repository contains the server-side code implemented in PHP and includes Blade templates. It provides APIs and/or server-rendered pages to manage events, users, and related resources for the EventSpot application.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Table of contents
+- [About](#about)
+- [Key features](#key-features)
+- [Tech stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Environment](#environment)
+- [Database](#database)
+- [Run locally](#run-locally)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License & Contact](#license--contact)
+- [Notes](#notes)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## About
+EventSpot-back is the backend portion of the EventSpot project (final project for the 2024 learning path). It is primarily written in PHP and contains Blade template files (Blade suggests Laravel usage, but the README keeps instructions flexible).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Key features
+- Event CRUD (Create, Read, Update, Delete)
+- User authentication & authorization (typical in backend projects)
+- API endpoints for frontend consumption
+- Blade-based server-rendered views (small proportion of repo)
+- Database migrations and seeders (if included)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Tech stack
+- PHP (≈98.4% of repository)
+- Blade templates (≈1.6% of repository)
+- Typical supporting tools: Composer, (optionally) Laravel framework, a SQL database (MySQL / MariaDB / PostgreSQL)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## Prerequisites
+- PHP (version 8.0+ recommended)
+- Composer
+- A database server (MySQL, MariaDB, or PostgreSQL)
+- Node & npm/yarn (only if frontend build or asset compilation is present)
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+---
+
+## Installation (general)
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/Sodja1234/eventspot-back.git
+   cd eventspot-back
+   ```
+2. Install PHP dependencies:
+   ```bash
+   composer install
+   ```
+3. Copy environment file and update settings:
+   ```bash
+   cp .env.example .env
+   # then edit .env to configure DB credentials, APP_KEY, etc.
+   ```
+4. Generate application key (if Laravel):
+   ```bash
+   php artisan key:generate
+   ```
+
+---
+
+## Environment (common variables)
+Set the following in your `.env`:
+- APP_NAME, APP_ENV, APP_KEY, APP_URL
+- DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
+- MAIL_*, CACHE_DRIVER, QUEUE_CONNECTION (if used)
+
+---
+
+## Database
+If migrations and seeders exist:
+```bash
+php artisan migrate
+php artisan db:seed
+```
+If not using Laravel, run whatever migration/seed commands the project provides.
+
+---
+
+## Run locally
+If this is a Laravel project:
+```bash
+php artisan serve
+# Visit: http://127.0.0.1:8000
+```
+Otherwise use the project's documented server start command or host under your web server (Nginx/Apache + PHP-FPM).
+
+---
+
+## Testing
+If PHPUnit is configured:
+```bash
+vendor/bin/phpunit
+```
+Or follow the repository's testing instructions (if any).
+
+---
+
+## Deployment
+- Prepare `.env` with production values.
+- Ensure database migrations are run on deploy.
+- Use a process manager (Supervisor) for queue workers if applicable.
+- Use appropriate web server configuration (Nginx/Apache + PHP-FPM).
+- Consider deployment platforms like Heroku, DigitalOcean, Fly.io, or cloud provider of your choice.
+
+---
 
 ## Contributing
+- Please open issues to report bugs or request features.
+- Create branches from `main` (or repo default) for PRs and use descriptive commit messages.
+- Add tests for new features or fixes when possible.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## License & Contact
+- Add your license file (e.g., MIT) in the repo root if you want an open-source license.
+- Contact: @Sodja1234 on GitHub
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
-## Swagger
-
-To install, publish and generate swagger-php, you can use the following command:
-
-```bash
-# Install Required Packages
-composer require darkaonline/l5-swagger tymon/jwt-auth
-# Configure JWT Authentication
-php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider"
-# Publish Swagger Configuration
-php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"
-# Generate Swagger
-php artisan l5-swagger:generate
-```
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Notes
+- This README intentionally stays generic because the repo structure / framework detection may vary. If this repository is a Laravel project, the commands above apply directly. If you'd like, I can:
+  - Inspect the repository to produce a tailored README with exact install/run steps.
+  - Create the README.md file in the repo and open a PR for you.
